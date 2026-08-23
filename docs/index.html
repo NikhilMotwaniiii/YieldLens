@@ -982,6 +982,73 @@
         position: relative;
       }
 
+      .value-share {
+        display: grid;
+        gap: 18px;
+      }
+
+      .value-stack {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        display: flex;
+        height: 42px;
+        overflow: hidden;
+      }
+
+      .value-segment {
+        display: block;
+        height: 100%;
+        position: relative;
+        transition: filter 0.18s ease, transform 0.18s ease;
+      }
+
+      .value-segment:hover,
+      .value-segment:focus-visible {
+        filter: brightness(1.08);
+        outline: none;
+        transform: translateY(-1px);
+      }
+
+      .value-share-total {
+        color: var(--muted);
+        font-size: 16px;
+        margin: 0;
+      }
+
+      .value-legend {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      }
+
+      .value-legend-row {
+        align-items: center;
+        display: grid;
+        gap: 10px;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        position: relative;
+      }
+
+      .value-swatch {
+        border-radius: 4px;
+        display: block;
+        height: 14px;
+        width: 14px;
+      }
+
+      .value-legend-row strong,
+      .value-legend-row small {
+        display: block;
+      }
+
+      .value-legend-row small {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.4;
+        margin-top: 4px;
+      }
+
       .track {
         background: var(--paper);
         border-radius: 999px;
@@ -1192,6 +1259,10 @@
         .chart-card,
         .table-card {
           padding: 22px;
+        }
+
+        .value-legend {
+          grid-template-columns: 1fr;
         }
 
         .workspace-meta {
@@ -1483,8 +1554,14 @@
             </article>
 
             <section class="card chart-card">
-              <h2>Gain/Loss Contributors</h2>
-              <div class="bars" id="gainLossContributors"></div>
+              <div class="section-head">
+                <div>
+                  <h2>Portfolio Value Share</h2>
+                  <p class="muted" style="margin: 8px 0 0">One stacked bar showing each bond's share of current portfolio value.</p>
+                </div>
+                <span class="section-tag">Allocation</span>
+              </div>
+              <div class="bars" id="valueShareChart"></div>
             </section>
           </section>
 
@@ -2086,21 +2163,52 @@
         });
       }
 
-      function renderGainLossContributors(target, rows) {
+      function renderValueShareChart(target, rows, totalValue) {
         const el = document.querySelector(target);
-        if (!rows.length) {
-          el.innerHTML = '<p class="muted" style="font-size: 22px; margin: 0">Add purchase price per unit for positions to see unrealized gain/loss contributors.</p>';
+        if (!rows.length || !totalValue) {
+          el.innerHTML = '<p class="muted" style="font-size: 22px; margin: 0">Add bonds to see how each position contributes to total portfolio value.</p>';
           return;
         }
-        el.innerHTML = rows
-          .map((row) => `
-            <div class="bar-row" tabindex="0" data-tooltip="${tooltip(`${row.label}: contributes ${formatPct(row.percent)} of absolute portfolio gain/loss impact`)}">
-              <span>${escapeHtml(row.label)}</span>
-              <span class="track"><span class="fill" style="width: ${Math.min(100, row.percent)}%"></span></span>
-              <strong>${formatPct(row.percent)}</strong>
+        const colors = ["#00897b", "#b8852f", "#a95f3d", "#345c56", "#6f786b", "#d0a13b", "#8a6f3d", "#47756d"];
+        el.innerHTML = `
+          <div class="value-share">
+            <div class="value-stack" aria-label="Portfolio value share by bond">
+              ${rows
+                .map((row, index) => {
+                  const color = colors[index % colors.length];
+                  const share = totalValue ? (row.marketValue / totalValue) * 100 : 0;
+                  return `
+                    <span
+                      class="value-segment"
+                      tabindex="0"
+                      style="width: ${share}%; background: ${color}"
+                      data-tooltip="${tooltip(`${row.issuer}: ${formatInr(row.marketValue)} • ${formatPct(share)} of portfolio`)}"
+                    ></span>
+                  `;
+                })
+                .join("")}
             </div>
-          `)
-          .join("");
+            <p class="value-share-total">Total portfolio value: <strong>${formatInr(totalValue)}</strong></p>
+            <div class="value-legend">
+            ${rows
+              .map((row, index) => {
+                const color = colors[index % colors.length];
+                const share = totalValue ? (row.marketValue / totalValue) * 100 : 0;
+                return `
+                  <div class="value-legend-row" tabindex="0" data-tooltip="${tooltip(`${row.securityName}: ${row.units} units • ${formatInr(row.marketValue)} market value`)}">
+                    <span class="value-swatch" style="background: ${color}"></span>
+                    <span>
+                      <strong>${escapeHtml(row.issuer)}</strong>
+                      <small>${escapeHtml(row.securityName)}</small>
+                    </span>
+                    <strong>${formatPct(share)}</strong>
+                  </div>
+                `;
+              })
+              .join("")}
+            </div>
+          </div>
+        `;
       }
 
       function renderDashboard() {
@@ -2127,12 +2235,24 @@
         const maturityOrder = ["< 1 year", "1-3 years", "3-5 years", "5-10 years", "10+ years"];
         const maturity = groupBy(data.rows, maturityBucket).sort((a, b) => maturityOrder.indexOf(a.label) - maturityOrder.indexOf(b.label));
         renderMaturityChart("#maturityDistribution", maturity, data.totalValue);
-        const contributors = data.rows
-          .slice()
-          .sort((a, b) => Math.abs(b.gainLoss) - Math.abs(a.gainLoss))
-          .slice(0, 6)
-          .map((row) => ({ label: row.bond.issuer, percent: data.totalValue ? Math.min(100, Math.abs(row.gainLoss) / data.totalValue * 100) : 0 }));
-        renderGainLossContributors("#gainLossContributors", contributors);
+        const valueShareMap = new Map();
+        data.rows.forEach((row) => {
+          const key = row.bond.isin || row.bond.securityName || row.bond.issuer;
+          const existing = valueShareMap.get(key);
+          if (existing) {
+            existing.units += row.units;
+            existing.marketValue += row.marketValue;
+            return;
+          }
+          valueShareMap.set(key, {
+            issuer: row.bond.issuer,
+            securityName: row.bond.securityName,
+            units: row.units,
+            marketValue: row.marketValue
+          });
+        });
+        const valueShares = Array.from(valueShareMap.values()).sort((a, b) => b.marketValue - a.marketValue);
+        renderValueShareChart("#valueShareChart", valueShares, data.totalValue);
         renderScenarioPanel("#scenarioGrid", data);
 
         renderPositions(data.rows);

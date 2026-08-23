@@ -1,7 +1,9 @@
 import { desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { portfolios } from "@/db/schema";
-import { badRequest, clientIdFrom, readJson, serverError } from "@/lib/api-utils";
+import { badRequest, clientIdFrom, json, preflight, readJson, serverError } from "@/lib/api-utils";
+
+export const OPTIONS = preflight;
 
 type CreatePortfolioPayload = {
   name?: string;
@@ -16,7 +18,7 @@ export async function GET(request: Request) {
       .from(portfolios)
       .where(eq(portfolios.clientId, clientId))
       .orderBy(desc(portfolios.updatedAt), desc(portfolios.id));
-    return Response.json({ portfolios: rows });
+    return json({ portfolios: rows });
   } catch (error) {
     return serverError(error);
   }
@@ -34,7 +36,7 @@ export async function POST(request: Request) {
       .insert(portfolios)
       .values({ clientId, name })
       .returning();
-    return Response.json({ portfolio }, { status: 201 });
+    return json({ portfolio }, { status: 201 });
   } catch (error) {
     return serverError(error);
   }

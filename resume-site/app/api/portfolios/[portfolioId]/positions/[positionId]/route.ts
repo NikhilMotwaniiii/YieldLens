@@ -1,7 +1,9 @@
 import { and, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { portfolios, positions } from "@/db/schema";
-import { badRequest, clientIdFrom, notFound, serverError } from "@/lib/api-utils";
+import { badRequest, clientIdFrom, json, notFound, preflight, serverError } from "@/lib/api-utils";
+
+export const OPTIONS = preflight;
 
 export async function DELETE(
   request: Request,
@@ -29,7 +31,7 @@ export async function DELETE(
       .set({ updatedAt: new Date().toISOString() })
       .where(eq(portfolios.id, portfolioId));
 
-    return Response.json({ ok: true });
+    return json({ ok: true });
   } catch (error) {
     return serverError(error);
   }

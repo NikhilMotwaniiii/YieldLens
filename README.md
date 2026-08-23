@@ -4,12 +4,13 @@ YieldLens is a full-stack fixed-income analytics workspace for bond portfolios. 
 
 The project is intentionally built like a production MVP: a typed FastAPI backend owns data normalization, validation, persistence, and analytics; a Next.js frontend owns the user experience, workflows, charts, and API consumption.
 
-Live demos:
+Live deployments:
 
 - GitHub Pages: https://nikhilmotwaniiii.github.io/YieldLens/
-- Sites preview: https://yieldlens-bond-analytics.hbits.chatgpt.site
+- Hosted backend API: https://yieldlens-bond-analytics.hbits.chatgpt.site/api
+- Sites backend workspace: https://yieldlens-bond-analytics.hbits.chatgpt.site
 
-The GitHub Pages demo is a self-contained browser version of the analytics workflow. It lets users add demo bonds, change units and prices, and see portfolio metrics update without a backend. The full local project in this repository includes the FastAPI backend, database-backed dashboard, CSV import, API routes, provider layer, and tests.
+The public GitHub Pages frontend calls the hosted backend API for portfolio and position persistence. The local project in this repository still includes the FastAPI backend, database-backed dashboard, CSV import, API routes, provider layer, and tests.
 
 ## Quick Mental Model
 

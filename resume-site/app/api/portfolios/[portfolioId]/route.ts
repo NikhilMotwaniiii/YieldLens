@@ -1,7 +1,9 @@
 import { and, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { portfolios, positions } from "@/db/schema";
-import { badRequest, clientIdFrom, notFound, readJson, serverError } from "@/lib/api-utils";
+import { badRequest, clientIdFrom, json, notFound, preflight, readJson, serverError } from "@/lib/api-utils";
+
+export const OPTIONS = preflight;
 
 type RenamePayload = {
   name?: string;
@@ -30,7 +32,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ portf
       .returning();
 
     if (!portfolio) return notFound("Portfolio not found.");
-    return Response.json({ portfolio });
+    return json({ portfolio });
   } catch (error) {
     return serverError(error);
   }
@@ -52,7 +54,7 @@ export async function DELETE(request: Request, context: { params: Promise<{ port
 
     await db.delete(positions).where(eq(positions.portfolioId, id));
     await db.delete(portfolios).where(eq(portfolios.id, id));
-    return Response.json({ ok: true });
+    return json({ ok: true });
   } catch (error) {
     return serverError(error);
   }

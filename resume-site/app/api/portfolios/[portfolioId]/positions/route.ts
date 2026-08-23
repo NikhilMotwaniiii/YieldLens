@@ -1,8 +1,10 @@
 import { and, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { portfolios, positions } from "@/db/schema";
-import { badRequest, clientIdFrom, numeric, readJson, serverError } from "@/lib/api-utils";
+import { badRequest, clientIdFrom, json, numeric, preflight, readJson, serverError } from "@/lib/api-utils";
 import { findBond } from "@/lib/bonds";
+
+export const OPTIONS = preflight;
 
 type AddPositionPayload = {
   isin?: string;
@@ -28,11 +30,11 @@ export async function GET(request: Request, context: { params: Promise<{ portfol
     const portfolioId = Number(params.portfolioId);
     if (!Number.isInteger(portfolioId)) return badRequest("Invalid portfolio id.");
     const portfolio = await ownsPortfolio(request, portfolioId);
-    if (!portfolio) return Response.json({ portfolio: null, positions: [] });
+    if (!portfolio) return json({ portfolio: null, positions: [] });
 
     const db = getDb();
     const rows = await db.select().from(positions).where(eq(positions.portfolioId, portfolioId));
-    return Response.json({ portfolio, positions: rows });
+    return json({ portfolio, positions: rows });
   } catch (error) {
     return serverError(error);
   }
@@ -77,7 +79,7 @@ export async function POST(request: Request, context: { params: Promise<{ portfo
       .set({ updatedAt: new Date().toISOString() })
       .where(eq(portfolios.id, portfolioId));
 
-    return Response.json({ position }, { status: 201 });
+    return json({ position }, { status: 201 });
   } catch (error) {
     return serverError(error);
   }

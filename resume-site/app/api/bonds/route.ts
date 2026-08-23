@@ -1,4 +1,7 @@
 import { bonds } from "@/lib/bonds";
+import { json, preflight } from "@/lib/api-utils";
+
+export const OPTIONS = preflight;
 
 export async function GET(request: Request) {
   const query = new URL(request.url).searchParams.get("q")?.trim().toLowerCase() ?? "";
@@ -10,5 +13,5 @@ export async function GET(request: Request) {
       )
     : bonds;
 
-  return Response.json({ bonds: filtered.slice(0, 24) });
+  return json({ bonds: filtered.slice(0, 24) });
 }

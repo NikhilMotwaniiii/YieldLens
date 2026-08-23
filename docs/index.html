@@ -269,6 +269,35 @@
         padding: 12px;
       }
 
+      .portfolio-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .portfolio-option {
+        background: #fffdf7;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--ink);
+        padding: 11px;
+        text-align: left;
+      }
+
+      .portfolio-option.active {
+        background: var(--accent-soft);
+        border-color: rgba(0, 137, 123, 0.35);
+      }
+
+      .portfolio-option strong,
+      .portfolio-option small {
+        display: block;
+      }
+
+      .portfolio-option small {
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
       .form-grid {
         display: grid;
         gap: 12px;
@@ -513,10 +542,10 @@
       <header class="topbar">
         <div>
           <span class="brand">YieldLens</span>
-          <p>Browser demo for fixed-income portfolio analytics</p>
+          <p>GitHub Pages frontend • ChatGPT-hosted backend</p>
         </div>
         <div class="top-actions">
-          <button class="button secondary" id="resetPortfolio">Reset demo</button>
+          <button class="button secondary" id="deletePortfolio">Delete active</button>
           <button class="button primary" id="loadSample">Load sample portfolio</button>
         </div>
       </header>
@@ -525,11 +554,18 @@
         <aside class="sidebar">
           <section class="panel">
             <span class="kicker">Add bond</span>
-            <h1>Build a portfolio and watch the analytics move.</h1>
+            <h1>Create saved portfolios from GitHub Pages.</h1>
             <p class="muted">
-              This GitHub Pages version runs fully in your browser using demo reference prices. The
-              full repository also includes the FastAPI backend and database-backed implementation.
+              The frontend is served from GitHub Pages. Portfolio and position data is stored by
+              the hosted YieldLens backend.
             </p>
+            <button class="button dark" id="createPortfolio" style="width: 100%">New portfolio</button>
+          </section>
+
+          <section class="panel">
+            <h2>Saved portfolios</h2>
+            <p class="notice" id="statusLine">Loading saved portfolios...</p>
+            <div class="portfolio-list" id="portfolioList"></div>
           </section>
 
           <section class="panel">
@@ -539,8 +575,8 @@
               <input id="bondSearch" type="search" placeholder="Try HDFC, Adani, Axis, INE..." />
             </div>
             <p class="notice" id="selectionNotice">
-              Suggested demo bonds appear immediately because GitHub Pages cannot fetch paid/live
-              market APIs or run the Python backend.
+              Suggested demo bonds appear immediately. The selected positions are saved through the
+              hosted backend API.
             </p>
             <div class="search-results" id="bondResults" aria-label="Bond search results"></div>
           </section>
@@ -576,8 +612,8 @@
             <span class="brand">Portfolio workspace</span>
             <h1 id="portfolioName">Core Bond Workspace</h1>
             <p>
-              Add bonds, change units and prices, inspect market value, unrealized gain/loss,
-              weighted yield, duration, DV01, exposure, maturity buckets, and rate shocks.
+              Add bonds from GitHub Pages, store them in the hosted backend, and inspect market
+              value, gain/loss, exposure, maturity buckets, and rate shocks.
             </p>
           </section>
 
@@ -648,13 +684,14 @@
       </div>
 
       <footer>
-        YieldLens is an educational fixed-income analytics project. This public GitHub Pages build
-        uses demo data and browser-local state because GitHub Pages is static hosting. It is not
-        investment advice, a live market-data feed, or a full bond-pricing model.
+        YieldLens is an educational fixed-income analytics project. This GitHub Pages frontend uses
+        demo bond reference data and persists portfolio records through the hosted backend API. It
+        is not investment advice, a live market-data feed, or a full bond-pricing model.
       </footer>
     </div>
 
     <script>
+      const API_BASE = "https://yieldlens-bond-analytics.hbits.chatgpt.site";
       const bonds = [
         ["INE001A08024", "HDFC Bank Limited", "HDFC Bank 7.95% 2031 Senior Bond", 7.95, "2031-08-15", 1000, "AAA", "Financial Services", 4.62, 1018.5, 7.58],
         ["INE001A08032", "HDFC Bank Limited", "HDFC Bank 8.10% 2033 Infrastructure Bond", 8.1, "2033-03-20", 1000, "AAA", "Financial Services", 5.75, 1026.4, 7.62],
@@ -694,10 +731,14 @@
 
       const state = {
         selected: bonds[0],
-        positions: readPositions()
+        portfolios: [],
+        activePortfolio: null,
+        positions: []
       };
 
       const els = {
+        portfolioList: document.querySelector("#portfolioList"),
+        statusLine: document.querySelector("#statusLine"),
         search: document.querySelector("#bondSearch"),
         results: document.querySelector("#bondResults"),
         selectedTitle: document.querySelector("#selectedTitle"),
@@ -708,8 +749,42 @@
         purchaseDate: document.querySelector("#purchaseDate"),
         addBond: document.querySelector("#addBond"),
         loadSample: document.querySelector("#loadSample"),
-        resetPortfolio: document.querySelector("#resetPortfolio")
+        createPortfolio: document.querySelector("#createPortfolio"),
+        deletePortfolio: document.querySelector("#deletePortfolio")
       };
+
+      const clientId = getClientId();
+
+      function getClientId() {
+        const key = "yieldlens-gh-pages-client";
+        const existing = localStorage.getItem(key);
+        if (existing) return existing;
+        const generated = crypto.randomUUID();
+        localStorage.setItem(key, generated);
+        return generated;
+      }
+
+      async function api(path, options = {}) {
+        const response = await fetch(`${API_BASE}${path}`, {
+          ...options,
+          headers: {
+            "Content-Type": "application/json",
+            "x-yieldlens-client": clientId,
+            ...(options.headers || {})
+          }
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(body.error || "Request failed");
+        return body;
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
 
       function formatInr(value) {
         return `INR ${Number(value || 0).toLocaleString("en-IN", {
@@ -728,17 +803,81 @@
         return Math.max(0, (maturity - today) / (365 * 24 * 60 * 60 * 1000));
       }
 
-      function readPositions() {
-        try {
-          const saved = JSON.parse(localStorage.getItem("yieldlens-pages-positions") || "[]");
-          return Array.isArray(saved) ? saved : [];
-        } catch {
-          return [];
+      async function loadPortfolios() {
+        setStatus("Loading saved portfolios...");
+        const { portfolios } = await api("/api/portfolios");
+        state.portfolios = portfolios;
+        renderPortfolios();
+        if (!state.activePortfolio && portfolios.length) {
+          await loadPortfolio(portfolios[0].id);
+        } else if (!portfolios.length) {
+          state.activePortfolio = null;
+          state.positions = [];
+          document.querySelector("#portfolioName").textContent = "Create your first portfolio";
+          setStatus("Create a portfolio to begin.");
+          renderDashboard();
+        } else {
+          setStatus(`${portfolios.length} saved portfolio${portfolios.length === 1 ? "" : "s"}.`);
         }
       }
 
-      function persist() {
-        localStorage.setItem("yieldlens-pages-positions", JSON.stringify(state.positions));
+      async function createPortfolio() {
+        const portfolioNumber = state.portfolios.length + 1;
+        const { portfolio } = await api("/api/portfolios", {
+          method: "POST",
+          body: JSON.stringify({ name: `Bond Portfolio ${portfolioNumber}` })
+        });
+        state.portfolios = [portfolio, ...state.portfolios];
+        renderPortfolios();
+        await loadPortfolio(portfolio.id);
+        return portfolio;
+      }
+
+      async function loadPortfolio(id) {
+        const { portfolio, positions } = await api(`/api/portfolios/${id}/positions`);
+        state.activePortfolio = portfolio;
+        state.positions = positions || [];
+        document.querySelector("#portfolioName").textContent = portfolio?.name || "Portfolio";
+        setStatus(portfolio ? `Active: ${portfolio.name}` : "Choose or create a portfolio.");
+        renderPortfolios();
+        renderDashboard();
+      }
+
+      async function ensurePortfolio() {
+        if (state.activePortfolio) return state.activePortfolio;
+        return createPortfolio();
+      }
+
+      async function deleteActivePortfolio() {
+        if (!state.activePortfolio) return;
+        const ok = confirm(`Delete ${state.activePortfolio.name}?`);
+        if (!ok) return;
+        await api(`/api/portfolios/${state.activePortfolio.id}`, { method: "DELETE" });
+        state.activePortfolio = null;
+        state.positions = [];
+        await loadPortfolios();
+      }
+
+      function setStatus(message) {
+        els.statusLine.textContent = message;
+      }
+
+      function renderPortfolios() {
+        if (!state.portfolios.length) {
+          els.portfolioList.innerHTML = '<div class="empty">No saved portfolios yet.</div>';
+          return;
+        }
+        els.portfolioList.innerHTML = state.portfolios
+          .map((portfolio) => `
+            <button class="portfolio-option ${state.activePortfolio?.id === portfolio.id ? "active" : ""}" data-portfolio="${portfolio.id}">
+              <strong>${escapeHtml(portfolio.name)}</strong>
+              <small>${new Date(portfolio.updatedAt || portfolio.updated_at || Date.now()).toLocaleDateString("en-IN")}</small>
+            </button>
+          `)
+          .join("");
+        els.portfolioList.querySelectorAll("[data-portfolio]").forEach((button) => {
+          button.addEventListener("click", () => loadPortfolio(Number(button.dataset.portfolio)).catch(showError));
+        });
       }
 
       function setSelected(bond) {
@@ -782,8 +921,9 @@
         });
       }
 
-      function addPosition() {
-        if (!state.selected) return;
+      async function addPosition() {
+        const portfolio = await ensurePortfolio();
+        if (!portfolio || !state.selected) return;
         const units = Number(els.units.value);
         const purchasePrice = Number(els.purchasePrice.value);
         const currentPrice = Number(els.currentPrice.value);
@@ -791,16 +931,38 @@
           alert("Enter valid units and current price per unit.");
           return;
         }
-        state.positions.push({
-          id: `${Date.now()}-${state.selected.isin}`,
-          isin: state.selected.isin,
-          units,
-          purchasePrice: Number.isFinite(purchasePrice) && purchasePrice > 0 ? purchasePrice : state.selected.faceValue,
-          currentPrice,
-          purchaseDate: els.purchaseDate.value
+        await api(`/api/portfolios/${portfolio.id}/positions`, {
+          method: "POST",
+          body: JSON.stringify({
+            isin: state.selected.isin,
+            units,
+            purchasePrice: Number.isFinite(purchasePrice) && purchasePrice > 0 ? purchasePrice : state.selected.faceValue,
+            currentPrice,
+            purchaseDate: els.purchaseDate.value
+          })
         });
-        persist();
-        renderDashboard();
+        await loadPortfolio(portfolio.id);
+        await loadPortfolios();
+      }
+
+      async function loadSample() {
+        const portfolio = await ensurePortfolio();
+        for (const [isin, units, purchasePrice] of samplePositions) {
+          const bond = bonds.find((item) => item.isin === isin);
+          if (!bond) continue;
+          await api(`/api/portfolios/${portfolio.id}/positions`, {
+            method: "POST",
+            body: JSON.stringify({ isin, units, purchasePrice, currentPrice: bond.price })
+          });
+        }
+        await loadPortfolio(portfolio.id);
+        await loadPortfolios();
+      }
+
+      async function removePosition(positionId) {
+        if (!state.activePortfolio) return;
+        await api(`/api/portfolios/${state.activePortfolio.id}/positions/${positionId}`, { method: "DELETE" });
+        await loadPortfolio(state.activePortfolio.id);
       }
 
       function positionRows() {
@@ -825,16 +987,7 @@
         const weightedYield = totalValue ? rows.reduce((sum, row) => sum + row.marketValue * row.bond.latestYield, 0) / totalValue : 0;
         const avgDuration = totalValue ? rows.reduce((sum, row) => sum + row.marketValue * row.bond.duration, 0) / totalValue : 0;
         const dv01 = rows.reduce((sum, row) => sum + row.marketValue * row.bond.duration * 0.0001, 0);
-        return {
-          rows,
-          totalValue,
-          totalCost,
-          gainLoss,
-          gainLossPercent: totalCost ? (gainLoss / totalCost) * 100 : 0,
-          weightedYield,
-          avgDuration,
-          dv01
-        };
+        return { rows, totalValue, totalCost, gainLoss, gainLossPercent: totalCost ? (gainLoss / totalCost) * 100 : 0, weightedYield, avgDuration, dv01 };
       }
 
       function groupBy(rows, getLabel) {
@@ -865,15 +1018,13 @@
           return;
         }
         el.innerHTML = rows
-          .map(
-            (row) => `
-              <div class="bar-row">
-                <span>${row.label}</span>
-                <span class="track"><span class="fill ${tone}" style="width: ${Math.min(100, row.percent)}%"></span></span>
-                <strong>${formatPct(row.percent)}</strong>
-              </div>
-            `
-          )
+          .map((row) => `
+            <div class="bar-row">
+              <span>${escapeHtml(row.label)}</span>
+              <span class="track"><span class="fill ${tone}" style="width: ${Math.min(100, row.percent)}%"></span></span>
+              <strong>${formatPct(row.percent)}</strong>
+            </div>
+          `)
           .join("");
       }
 
@@ -896,7 +1047,7 @@
           .slice()
           .sort((a, b) => Math.abs(b.gainLoss) - Math.abs(a.gainLoss))
           .slice(0, 6)
-          .map((row) => ({ label: row.bond.issuer, value: row.gainLoss, percent: data.totalValue ? Math.min(100, Math.abs(row.gainLoss) / data.totalValue * 100) : 0 }));
+          .map((row) => ({ label: row.bond.issuer, percent: data.totalValue ? Math.min(100, Math.abs(row.gainLoss) / data.totalValue * 100) : 0 }));
         renderBars("#gainLossContributors", contributors, "teal");
 
         document.querySelector("#scenarioGrid").innerHTML = [-100, -50, 50, 100]
@@ -918,8 +1069,12 @@
 
       function renderPositions(rows) {
         const wrap = document.querySelector("#positionsWrap");
+        if (!state.activePortfolio) {
+          wrap.innerHTML = '<div class="empty">Create or choose a portfolio to start.</div>';
+          return;
+        }
         if (!rows.length) {
-          wrap.innerHTML = '<div class="empty">No positions yet. Select a suggested bond and add it to start testing analytics.</div>';
+          wrap.innerHTML = '<div class="empty">No positions yet. Select a suggested bond and add it to save it in the backend.</div>';
           return;
         }
         const total = rows.reduce((sum, row) => sum + row.marketValue, 0);
@@ -938,60 +1093,40 @@
               </tr>
             </thead>
             <tbody>
-              ${rows
-                .map(
-                  (row) => `
-                    <tr>
-                      <td><strong>${row.bond.securityName}</strong><small>${row.bond.issuer} • ${row.bond.isin}</small></td>
-                      <td>${row.units}</td>
-                      <td>${formatInr(row.currentPrice)}</td>
-                      <td><strong>${formatInr(row.marketValue)}</strong></td>
-                      <td class="${row.gainLoss >= 0 ? "gain" : "loss"}">${formatInr(row.gainLoss)}<small>${formatPct(row.gainLossPercent)}</small></td>
-                      <td>${formatPct(total ? (row.marketValue / total) * 100 : 0)}</td>
-                      <td>${row.bond.duration.toFixed(2)} yrs</td>
-                      <td><button class="remove" data-remove="${row.id}">Remove</button></td>
-                    </tr>
-                  `
-                )
-                .join("")}
+              ${rows.map((row) => `
+                <tr>
+                  <td><strong>${escapeHtml(row.bond.securityName)}</strong><small>${escapeHtml(row.bond.issuer)} • ${row.bond.isin}</small></td>
+                  <td>${row.units}</td>
+                  <td>${formatInr(row.currentPrice)}</td>
+                  <td><strong>${formatInr(row.marketValue)}</strong></td>
+                  <td class="${row.gainLoss >= 0 ? "gain" : "loss"}">${formatInr(row.gainLoss)}<small>${formatPct(row.gainLossPercent)}</small></td>
+                  <td>${formatPct(total ? (row.marketValue / total) * 100 : 0)}</td>
+                  <td>${row.bond.duration.toFixed(2)} yrs</td>
+                  <td><button class="remove" data-remove="${row.id}">Remove</button></td>
+                </tr>
+              `).join("")}
             </tbody>
           </table>
         `;
         wrap.querySelectorAll("[data-remove]").forEach((button) => {
-          button.addEventListener("click", () => {
-            state.positions = state.positions.filter((position) => position.id !== button.dataset.remove);
-            persist();
-            renderDashboard();
-          });
+          button.addEventListener("click", () => removePosition(Number(button.dataset.remove)).catch(showError));
         });
       }
 
+      function showError(error) {
+        setStatus(error instanceof Error ? error.message : "Something went wrong.");
+      }
+
       els.search.addEventListener("input", renderBondResults);
-      els.addBond.addEventListener("click", addPosition);
-      els.loadSample.addEventListener("click", () => {
-        state.positions = samplePositions.map(([isin, units, purchasePrice], index) => {
-          const bond = bonds.find((item) => item.isin === isin);
-          return {
-            id: `sample-${Date.now()}-${index}`,
-            isin,
-            units,
-            purchasePrice,
-            currentPrice: bond.price,
-            purchaseDate: ""
-          };
-        });
-        persist();
-        renderDashboard();
-      });
-      els.resetPortfolio.addEventListener("click", () => {
-        state.positions = [];
-        persist();
-        renderDashboard();
-      });
+      els.addBond.addEventListener("click", () => addPosition().catch(showError));
+      els.loadSample.addEventListener("click", () => loadSample().catch(showError));
+      els.createPortfolio.addEventListener("click", () => createPortfolio().catch(showError));
+      els.deletePortfolio.addEventListener("click", () => deleteActivePortfolio().catch(showError));
 
       setSelected(bonds[0]);
       renderBondResults();
       renderDashboard();
+      loadPortfolios().catch(showError);
     </script>
   </body>
 </html>

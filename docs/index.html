@@ -42,6 +42,18 @@
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
 
+      body.drawer-open {
+        overflow: hidden;
+      }
+
+      body.drawer-open::before {
+        background: rgba(17, 21, 15, 0.55);
+        content: "";
+        inset: 0;
+        position: fixed;
+        z-index: 20;
+      }
+
       button,
       input {
         font: inherit;
@@ -55,6 +67,171 @@
         margin: 0 auto;
         max-width: 1440px;
         padding: 18px;
+      }
+
+      .is-hidden {
+        display: none !important;
+      }
+
+      .landing {
+        min-height: 100vh;
+        padding: 18px;
+      }
+
+      .landing-shell {
+        display: flex;
+        flex-direction: column;
+        margin: 0 auto;
+        max-width: 1280px;
+        min-height: calc(100vh - 36px);
+      }
+
+      .landing-hero {
+        align-items: center;
+        display: grid;
+        flex: 1;
+        gap: 42px;
+        grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+        padding: 56px 0 40px;
+      }
+
+      .landing-copy {
+        max-width: 680px;
+      }
+
+      .landing-copy .kicker {
+        background: var(--accent-soft);
+        border-radius: 4px;
+        padding: 8px 11px;
+      }
+
+      .landing-copy h1 {
+        font-size: clamp(48px, 8vw, 92px);
+        letter-spacing: 0;
+        line-height: 0.92;
+        margin: 22px 0 20px;
+      }
+
+      .landing-copy p {
+        color: var(--muted);
+        font-size: 20px;
+        line-height: 1.6;
+        margin-bottom: 0;
+        max-width: 620px;
+      }
+
+      .landing-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .tape {
+        background: var(--night);
+        border: 1px solid rgba(255, 250, 240, 0.12);
+        border-radius: 8px;
+        box-shadow: 0 28px 80px rgba(17, 21, 15, 0.28);
+        color: var(--panel);
+        padding: 20px;
+      }
+
+      .tape-head,
+      .tape-row,
+      .tape-grid {
+        display: grid;
+      }
+
+      .tape-head {
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 250, 240, 0.12);
+        gap: 18px;
+        grid-template-columns: 1fr auto;
+        padding-bottom: 16px;
+      }
+
+      .currency-pill {
+        background: var(--panel);
+        border-radius: 4px;
+        color: var(--night);
+        font-size: 12px;
+        font-weight: 850;
+        padding: 7px 10px;
+      }
+
+      .tape-metrics {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin-top: 18px;
+      }
+
+      .tape-metric,
+      .mini-bar {
+        background: rgba(255, 250, 240, 0.09);
+        border: 1px solid rgba(255, 250, 240, 0.11);
+        border-radius: 6px;
+      }
+
+      .tape-metric {
+        padding: 13px;
+      }
+
+      .tape-metric span,
+      .tape-table-head {
+        color: #bfc6bd;
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .tape-metric strong {
+        display: block;
+        font-size: 22px;
+        margin-top: 8px;
+      }
+
+      .tape-table {
+        border: 1px solid rgba(255, 250, 240, 0.11);
+        border-radius: 7px;
+        margin-top: 18px;
+        overflow: hidden;
+      }
+
+      .tape-row,
+      .tape-table-head {
+        grid-template-columns: 1fr 64px 76px 76px;
+        padding: 12px;
+      }
+
+      .tape-row {
+        border-top: 1px solid rgba(255, 250, 240, 0.1);
+        font-size: 14px;
+      }
+
+      .tape-muted {
+        color: #bfc6bd;
+      }
+
+      .tape-bars {
+        display: grid;
+        gap: 8px;
+        grid-template-columns: repeat(12, 1fr);
+        margin-top: 18px;
+      }
+
+      .mini-bar {
+        align-items: end;
+        display: flex;
+        height: 96px;
+        padding: 4px;
+      }
+
+      .mini-bar span {
+        border-radius: 4px;
+        display: block;
+        width: 100%;
       }
 
       .topbar {
@@ -126,9 +303,7 @@
       }
 
       .workspace {
-        display: grid;
-        gap: 18px;
-        grid-template-columns: minmax(300px, 390px) 1fr;
+        display: block;
         padding-top: 18px;
       }
 
@@ -141,11 +316,33 @@
       }
 
       .sidebar {
-        align-self: start;
+        background: var(--paper);
+        border-left: 1px solid var(--line);
+        bottom: 0;
+        box-shadow: -24px 0 70px rgba(17, 21, 15, 0.22);
         display: grid;
         gap: 14px;
-        position: sticky;
-        top: 18px;
+        max-width: 680px;
+        overflow-y: auto;
+        padding: 18px;
+        position: fixed;
+        right: 0;
+        top: 0;
+        transform: translateX(105%);
+        transition: transform 180ms ease;
+        width: min(680px, 100vw);
+        z-index: 30;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .drawer-head {
+        align-items: start;
+        display: flex;
+        gap: 14px;
+        justify-content: space-between;
       }
 
       .panel {
@@ -193,17 +390,24 @@
       .field {
         display: grid;
         gap: 6px;
+        grid-template-rows: auto 52px minmax(20px, auto);
       }
 
       .field span {
         color: var(--muted);
+        display: block;
         font-size: 12px;
         font-weight: 800;
+        height: 16px;
+        line-height: 16px;
+        overflow: hidden;
       }
 
       .field small {
         color: var(--muted);
+        display: block;
         line-height: 1.4;
+        min-height: 20px;
       }
 
       input {
@@ -211,9 +415,16 @@
         border: 1px solid var(--line);
         border-radius: 6px;
         color: var(--ink);
-        min-height: 42px;
+        height: 52px;
+        min-height: 52px;
         padding: 10px 12px;
         width: 100%;
+      }
+
+      input[type="date"] {
+        appearance: none;
+        -webkit-appearance: none;
+        line-height: normal;
       }
 
       input:focus {
@@ -224,7 +435,7 @@
       .search-results {
         border: 1px solid var(--line);
         border-radius: 8px;
-        max-height: 370px;
+        max-height: 310px;
         overflow: auto;
       }
 
@@ -234,13 +445,36 @@
         border-bottom: 1px solid var(--line);
         display: block;
         padding: 12px;
+        position: relative;
         text-align: left;
+        transition: background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
         width: 100%;
       }
 
       .bond-option:hover,
       .bond-option.selected {
         background: var(--accent-soft);
+      }
+
+      .bond-option.selected {
+        box-shadow: inset 5px 0 0 var(--accent);
+      }
+
+      .bond-option.just-selected {
+        animation: selectPulse 460ms ease;
+      }
+
+      .bond-option.selected::after {
+        background: var(--accent);
+        border-radius: 999px;
+        color: white;
+        content: "Selected";
+        font-size: 11px;
+        font-weight: 900;
+        padding: 5px 8px;
+        position: absolute;
+        right: 12px;
+        top: 12px;
       }
 
       .bond-option:last-child {
@@ -257,6 +491,34 @@
         display: block;
         line-height: 1.5;
         margin-top: 4px;
+        padding-right: 76px;
+      }
+
+      @keyframes selectPulse {
+        0% {
+          transform: scale(1);
+        }
+
+        45% {
+          box-shadow: inset 5px 0 0 var(--accent), 0 0 0 4px rgba(0, 137, 123, 0.16);
+          transform: scale(1.01);
+        }
+
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes slideNotice {
+        from {
+          opacity: 0;
+          transform: translateY(-6px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .notice {
@@ -299,6 +561,7 @@
       }
 
       .form-grid {
+        align-items: start;
         display: grid;
         gap: 12px;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -329,43 +592,380 @@
         max-width: 860px;
       }
 
+      .desk-context {
+        display: grid;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .dashboard-topbar {
+        display: none;
+      }
+
+      .hero {
+        padding: clamp(34px, 5vw, 56px);
+      }
+
+      .workspace-badge {
+        align-items: center;
+        border: 1px solid rgba(255, 250, 240, 0.2);
+        border-radius: 4px;
+        color: #b9d8d2;
+        display: inline-flex;
+        font-size: 15px;
+        font-weight: 900;
+        gap: 10px;
+        letter-spacing: 0.2em;
+        padding: 10px 16px;
+      }
+
+      .workspace-badge::before {
+        background: var(--accent);
+        border-radius: 999px;
+        content: "";
+        height: 9px;
+        width: 9px;
+      }
+
+      .workspace-title-row {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-top: 34px;
+      }
+
+      .workspace-title-row h1 {
+        color: var(--panel);
+        font-size: clamp(46px, 7vw, 74px);
+        margin: 0;
+      }
+
+      .icon-button {
+        align-items: center;
+        background: transparent;
+        border: 1px solid rgba(255, 250, 240, 0.24);
+        border-radius: 8px;
+        color: var(--panel);
+        display: inline-flex;
+        height: 56px;
+        justify-content: center;
+        width: 56px;
+      }
+
+      .workspace-meta {
+        color: #bfc6bd;
+        font-size: 24px;
+        font-weight: 800;
+        margin-top: 18px;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-top: 32px;
+      }
+
+      .hero-actions .button {
+        font-size: 19px;
+        min-height: 62px;
+        padding: 16px 26px;
+      }
+
+      .hero-lenses {
+        border-top: 1px solid rgba(255, 250, 240, 0.13);
+        color: #bfc6bd;
+        display: grid;
+        font-size: 18px;
+        font-weight: 750;
+        gap: 18px;
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 38px;
+        padding-top: 28px;
+      }
+
       .metrics {
         display: grid;
-        gap: 14px;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 26px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .metric {
-        padding: 18px;
+        border-left: 6px solid var(--accent);
+        min-height: 230px;
+        padding: 34px;
+        position: relative;
       }
 
       .metric span {
         color: var(--muted);
         display: block;
-        font-size: 13px;
-        font-weight: 800;
+        font-size: 19px;
+        font-weight: 900;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
       }
 
       .metric strong {
         display: block;
-        font-size: 25px;
-        margin: 10px 0 6px;
+        font-size: clamp(44px, 6vw, 58px);
+        line-height: 1;
+        margin: 28px 0 26px;
       }
 
       .metric small {
+        background: rgba(238, 241, 235, 0.82);
+        border-radius: 4px;
         color: var(--muted);
+        display: block;
+        font-size: 19px;
         line-height: 1.4;
+        padding: 10px 14px;
+      }
+
+      .metric::after {
+        background: var(--brass);
+        border-radius: 999px;
+        content: "";
+        height: 12px;
+        position: absolute;
+        right: 32px;
+        top: 36px;
+        width: 12px;
+      }
+
+      .metric:nth-child(5) {
+        grid-column: span 1;
       }
 
       .grid-2 {
         display: grid;
-        gap: 18px;
-        grid-template-columns: 1fr 1fr;
+        gap: 26px;
       }
 
       .chart-card,
       .table-card {
-        padding: 18px;
+        padding: 34px;
+      }
+
+      .exposure-stack {
+        display: grid;
+        gap: 34px;
+      }
+
+      .section-head {
+        align-items: center;
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+        margin-bottom: 24px;
+      }
+
+      .section-head h2 {
+        font-size: 26px;
+        margin: 0;
+      }
+
+      .section-tag {
+        background: rgba(238, 241, 235, 0.82);
+        border-radius: 4px;
+        color: var(--muted);
+        font-size: 16px;
+        font-weight: 900;
+        letter-spacing: 0.18em;
+        padding: 10px 14px;
+        text-transform: uppercase;
+      }
+
+      .donut-panel {
+        display: grid;
+        min-height: 470px;
+      }
+
+      .donut-wrap {
+        align-items: center;
+        display: grid;
+        justify-items: center;
+      }
+
+      .donut {
+        background: conic-gradient(var(--accent) 0deg, var(--accent) var(--angle), transparent var(--angle), transparent 360deg);
+        border-radius: 999px;
+        height: min(270px, 42vw);
+        position: relative;
+        width: min(270px, 42vw);
+      }
+
+      .donut::before {
+        background: var(--panel);
+        border-radius: 999px;
+        content: "";
+        inset: 46px;
+        position: absolute;
+      }
+
+      .legend-row {
+        align-items: center;
+        color: var(--muted);
+        display: grid;
+        font-size: 20px;
+        gap: 18px;
+        grid-template-columns: auto 1fr auto;
+        margin-top: 12px;
+        position: relative;
+      }
+
+      .legend-swatch {
+        background: var(--accent);
+        border-radius: 3px;
+        height: 15px;
+        width: 15px;
+      }
+
+      .maturity-card {
+        min-height: 520px;
+      }
+
+      .maturity-chart {
+        align-items: end;
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 72px 1fr;
+      }
+
+      .axis-labels {
+        color: var(--muted);
+        display: grid;
+        font-size: 17px;
+        gap: 1px;
+        grid-template-rows: repeat(5, 1fr);
+        height: 360px;
+        text-align: right;
+      }
+
+      .maturity-plot {
+        background:
+          linear-gradient(to bottom, transparent calc(25% - 1px), var(--line) calc(25% - 1px), var(--line) 25%, transparent 25%),
+          linear-gradient(to bottom, transparent calc(50% - 1px), var(--line) calc(50% - 1px), var(--line) 50%, transparent 50%),
+          linear-gradient(to bottom, transparent calc(75% - 1px), var(--line) calc(75% - 1px), var(--line) 75%, transparent 75%),
+          linear-gradient(to bottom, transparent calc(100% - 1px), var(--line) calc(100% - 1px), var(--line) 100%, transparent 100%);
+        display: grid;
+        gap: 28px;
+        grid-template-columns: repeat(5, 1fr);
+        height: 360px;
+        padding: 0 12px;
+      }
+
+      .maturity-bucket {
+        align-items: end;
+        display: grid;
+        gap: 12px;
+        grid-template-rows: 1fr auto;
+        justify-items: center;
+        position: relative;
+      }
+
+      .maturity-bar {
+        background: var(--accent);
+        border-radius: 6px 6px 0 0;
+        cursor: help;
+        min-height: 2px;
+        width: min(100%, 190px);
+      }
+
+      .maturity-label {
+        color: var(--muted);
+        font-size: 18px;
+        white-space: nowrap;
+      }
+
+      .scenario-card {
+        background: var(--night);
+        border-color: var(--night);
+        color: var(--panel);
+      }
+
+      .scenario-card .shock-grid {
+        display: block;
+      }
+
+      .scenario-card .muted,
+      .scenario-card .section-head p {
+        color: #bfc6bd;
+      }
+
+      .scenario-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+
+      .scenario-button {
+        background: rgba(255, 250, 240, 0.08);
+        border: 1px solid rgba(255, 250, 240, 0.18);
+        border-radius: 8px;
+        color: #d6ddd2;
+        font-size: 21px;
+        font-weight: 900;
+        min-height: 58px;
+        padding: 14px 24px;
+      }
+
+      .scenario-button.active {
+        background: var(--panel);
+        color: var(--night);
+      }
+
+      .scenario-result {
+        background: rgba(217, 241, 235, 0.07);
+        border: 1px solid rgba(255, 250, 240, 0.16);
+        border-radius: 8px;
+        margin-top: 30px;
+        padding: 28px;
+      }
+
+      .scenario-result span {
+        color: #bfc6bd;
+        display: block;
+        font-size: 21px;
+        font-weight: 800;
+      }
+
+      .scenario-result strong {
+        display: block;
+        font-size: 58px;
+        margin-top: 18px;
+      }
+
+      .scenario-meta {
+        display: grid;
+        gap: 28px;
+        grid-template-columns: repeat(2, 1fr);
+        margin-top: 28px;
+      }
+
+      .scenario-contributors {
+        display: grid;
+        gap: 14px;
+        margin-top: 28px;
+      }
+
+      .scenario-contributor {
+        align-items: center;
+        background: rgba(217, 241, 235, 0.07);
+        border: 1px solid rgba(255, 250, 240, 0.16);
+        border-radius: 8px;
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 1fr auto;
+        padding: 20px;
+        position: relative;
+      }
+
+      .analysis-grid {
+        display: grid;
+        gap: 26px;
       }
 
       .bars {
@@ -379,6 +979,7 @@
         grid-template-columns: 120px 1fr 72px;
         align-items: center;
         font-size: 13px;
+        position: relative;
       }
 
       .track {
@@ -393,6 +994,46 @@
         border-radius: 999px;
         display: block;
         height: 100%;
+      }
+
+      [data-tooltip] {
+        cursor: help;
+      }
+
+      [data-tooltip]::after {
+        background: var(--night);
+        border: 1px solid rgba(255, 250, 240, 0.16);
+        border-radius: 6px;
+        bottom: calc(100% + 10px);
+        box-shadow: 0 16px 35px rgba(17, 21, 15, 0.22);
+        color: var(--panel);
+        content: attr(data-tooltip);
+        font-size: 12px;
+        font-weight: 750;
+        left: 50%;
+        line-height: 1.35;
+        max-width: 260px;
+        opacity: 0;
+        padding: 9px 11px;
+        pointer-events: none;
+        position: absolute;
+        transform: translate(-50%, 6px);
+        transition: opacity 140ms ease, transform 140ms ease;
+        white-space: normal;
+        width: max-content;
+        z-index: 10;
+      }
+
+      .scenario-card [data-tooltip]::after {
+        background: var(--panel);
+        border-color: var(--line);
+        color: var(--night);
+      }
+
+      [data-tooltip]:hover::after,
+      [data-tooltip]:focus-visible::after {
+        opacity: 1;
+        transform: translate(-50%, 0);
       }
 
       .fill.brass {
@@ -501,16 +1142,16 @@
       }
 
       @media (max-width: 1120px) {
-        .workspace {
+        .metrics {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .landing-hero {
           grid-template-columns: 1fr;
         }
 
-        .sidebar {
-          position: static;
-        }
-
-        .metrics {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
+        .hero-lenses {
+          grid-template-columns: 1fr;
         }
       }
 
@@ -527,37 +1168,174 @@
 
         .metrics,
         .form-grid,
-        .shock-grid {
+        .shock-grid,
+        .tape-metrics,
+        .desk-context,
+        .scenario-meta {
           grid-template-columns: 1fr;
         }
 
         h1 {
           font-size: 34px;
         }
+
+        .landing-copy h1 {
+          font-size: 46px;
+        }
+
+        .tape-row,
+        .tape-table-head {
+          grid-template-columns: 1fr 54px 64px 64px;
+        }
+
+        .metric,
+        .chart-card,
+        .table-card {
+          padding: 22px;
+        }
+
+        .workspace-meta {
+          font-size: 18px;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="shell">
-      <header class="topbar">
+    <main class="landing" id="landing">
+      <div class="landing-shell">
+        <header class="topbar">
+          <div>
+            <span class="brand">YieldLens</span>
+            <p>A command desk for fixed-income clarity</p>
+          </div>
+          <div class="top-actions">
+            <button class="button secondary" id="landingSample">Load sample</button>
+            <button class="button primary" id="enterDashboard">Open dashboard</button>
+          </div>
+        </header>
+
+        <section class="landing-hero">
+          <div class="landing-copy">
+            <span class="kicker">Bond intelligence workspace</span>
+            <h1>See your bonds like a desk would.</h1>
+            <p>
+              Track value, risk, income, and return signals in a calm workspace built for decisions,
+              not spreadsheet hunting.
+            </p>
+            <div class="landing-actions">
+              <button class="button dark" id="enterDashboardHero">Start analyzing</button>
+              <button class="button light" id="landingSampleHero">Try demo portfolio</button>
+            </div>
+          </div>
+
+          <div class="tape" aria-label="Portfolio preview">
+            <div class="tape-head">
+              <div>
+                <span class="brand">Portfolio tape</span>
+                <p class="tape-muted" style="margin: 4px 0 0">Demo bond universe</p>
+              </div>
+              <span class="currency-pill">INR</span>
+            </div>
+
+            <div class="tape-metrics">
+              <div class="tape-metric">
+                <span>Market value</span>
+                <strong>₹6,048.75</strong>
+              </div>
+              <div class="tape-metric">
+                <span>Gain/Loss</span>
+                <strong class="gain">+₹33.75</strong>
+              </div>
+              <div class="tape-metric">
+                <span>DV01</span>
+                <strong>₹2.33</strong>
+              </div>
+            </div>
+
+            <div class="tape-table">
+              <div class="tape-table-head">
+                <span>Bond</span>
+                <span>Rate</span>
+                <span>Coupon</span>
+                <span>Return</span>
+              </div>
+              <div class="tape-row">
+                <strong>Adani Ports 2030</strong>
+                <span class="tape-muted">AA</span>
+                <span class="tape-muted">8.45%</span>
+                <span class="gain">+0.51%</span>
+              </div>
+              <div class="tape-row">
+                <strong>Axis Bank 2032</strong>
+                <span class="tape-muted">AA+</span>
+                <span class="tape-muted">8.00%</span>
+                <span class="gain">+0.18%</span>
+              </div>
+              <div class="tape-row">
+                <strong>Muthoot Finance 2028</strong>
+                <span class="tape-muted">AA</span>
+                <span class="tape-muted">8.90%</span>
+                <span class="loss">-0.24%</span>
+              </div>
+              <div class="tape-row">
+                <strong>Bank of Baroda 2034</strong>
+                <span class="tape-muted">AA+</span>
+                <span class="tape-muted">7.99%</span>
+                <span class="gain">+0.33%</span>
+              </div>
+            </div>
+
+            <div class="tape-bars" aria-hidden="true">
+              <div class="mini-bar"><span style="height: 34%; background: var(--accent)"></span></div>
+              <div class="mini-bar"><span style="height: 58%; background: var(--accent)"></span></div>
+              <div class="mini-bar"><span style="height: 47%; background: var(--brass)"></span></div>
+              <div class="mini-bar"><span style="height: 72%; background: var(--accent)"></span></div>
+              <div class="mini-bar"><span style="height: 42%; background: var(--copper)"></span></div>
+              <div class="mini-bar"><span style="height: 88%; background: var(--accent)"></span></div>
+              <div class="mini-bar"><span style="height: 63%; background: var(--brass)"></span></div>
+              <div class="mini-bar"><span style="height: 76%; background: var(--accent)"></span></div>
+              <div class="mini-bar"><span style="height: 51%; background: var(--copper)"></span></div>
+              <div class="mini-bar"><span style="height: 69%; background: var(--accent)"></span></div>
+              <div class="mini-bar"><span style="height: 45%; background: var(--brass)"></span></div>
+              <div class="mini-bar"><span style="height: 82%; background: var(--accent)"></span></div>
+            </div>
+          </div>
+        </section>
+
+        <footer>
+          YieldLens is an educational fixed-income analytics project. Analytics are simplified
+          estimates and do not constitute investment advice.
+        </footer>
+      </div>
+    </main>
+
+    <div class="shell is-hidden" id="dashboard">
+      <header class="topbar dashboard-topbar">
         <div>
           <span class="brand">YieldLens</span>
-          <p>GitHub Pages frontend • ChatGPT-hosted backend</p>
+          <p>Dashboard frontend on GitHub Pages • backend API on ChatGPT</p>
         </div>
         <div class="top-actions">
+          <button class="button secondary" id="backLanding">Landing</button>
           <button class="button secondary" id="deletePortfolio">Delete active</button>
           <button class="button primary" id="loadSample">Load sample portfolio</button>
+          <button class="button primary" id="openAddBond">Add Bond</button>
         </div>
       </header>
 
       <div class="workspace">
         <aside class="sidebar">
           <section class="panel">
-            <span class="kicker">Add bond</span>
-            <h1>Create saved portfolios from GitHub Pages.</h1>
-            <p class="muted">
-              The frontend is served from GitHub Pages. Portfolio and position data is stored by
-              the hosted YieldLens backend.
+            <div class="drawer-head">
+              <div>
+                <span class="kicker">Add bond</span>
+                <h2 style="margin: 8px 0 0">Search or create a saved portfolio.</h2>
+              </div>
+              <button class="button light" id="closeAddBond">Close</button>
+            </div>
+            <p class="muted" style="margin-top: 12px">
+              Suggested demo bonds appear immediately. The selected positions are saved through the
+              hosted backend API.
             </p>
             <button class="button dark" id="createPortfolio" style="width: 100%">New portfolio</button>
           </section>
@@ -574,24 +1352,22 @@
               <span>Issuer, ISIN, or security name</span>
               <input id="bondSearch" type="search" placeholder="Try HDFC, Adani, Axis, INE..." />
             </div>
-            <p class="notice" id="selectionNotice">
-              Suggested demo bonds appear immediately. The selected positions are saved through the
-              hosted backend API.
-            </p>
             <div class="search-results" id="bondResults" aria-label="Bond search results"></div>
           </section>
 
-          <section class="panel">
+          <section class="panel" id="selectedBondPanel">
             <h2 id="selectedTitle">Selected bond</h2>
             <p class="muted" id="selectedSummary">Pick a bond above to prefill this form.</p>
             <div class="form-grid">
               <label class="field">
                 <span>Units</span>
                 <input id="units" type="number" min="0.0001" step="0.0001" value="1" />
+                <small aria-hidden="true"></small>
               </label>
               <label class="field">
                 <span>Purchase Price per Unit</span>
                 <input id="purchasePrice" type="number" min="0" step="0.01" />
+                <small aria-hidden="true"></small>
               </label>
               <label class="field">
                 <span>Current Price per Unit</span>
@@ -601,6 +1377,7 @@
               <label class="field">
                 <span>Purchase Date</span>
                 <input id="purchaseDate" type="date" />
+                <small aria-hidden="true"></small>
               </label>
             </div>
             <button class="button dark" id="addBond" style="margin-top: 14px; width: 100%">Add to portfolio</button>
@@ -609,12 +1386,36 @@
 
         <main class="main">
           <section class="hero">
-            <span class="brand">Portfolio workspace</span>
-            <h1 id="portfolioName">Core Bond Workspace</h1>
-            <p>
-              Add bonds from GitHub Pages, store them in the hosted backend, and inspect market
-              value, gain/loss, exposure, maturity buckets, and rate shocks.
-            </p>
+            <span class="workspace-badge">YIELDLENS</span>
+            <div class="workspace-title-row">
+              <h1 id="portfolioName">Core Bond Workspace</h1>
+              <button class="icon-button" id="openAddBondHero" title="Edit portfolio or add bond" aria-label="Open portfolio tools">
+                <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 20h9" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
+                  <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+                </svg>
+              </button>
+            </div>
+            <p class="workspace-meta" id="workspaceMeta">0 bonds • Last updated today</p>
+            <div class="hero-actions">
+              <button class="button primary" id="openAddBondHeroAction">
+                <span style="font-size: 30px; line-height: 0">+</span>
+                Add Bond
+              </button>
+              <button class="button secondary" id="importCsv">
+                <svg width="25" height="25" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+                  <path d="M17 8 12 3 7 8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+                  <path d="M12 3v12" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
+                </svg>
+                Import CSV
+              </button>
+            </div>
+            <div class="hero-lenses">
+              <span>Valuation lens: market price per unit</span>
+              <span>Risk lens: duration and DV01</span>
+              <span>Return lens: unrealized gain/loss</span>
+            </div>
           </section>
 
           <section class="metrics">
@@ -645,39 +1446,53 @@
             </article>
           </section>
 
-          <section class="grid-2">
-            <article class="card chart-card">
-              <h2>Credit Rating Exposure</h2>
-              <div class="bars" id="ratingExposure"></div>
+          <section class="card chart-card exposure-stack">
+            <article class="donut-panel">
+              <div class="section-head">
+                <h2>Credit Rating Exposure</h2>
+                <span class="section-tag">Exposure</span>
+              </div>
+              <div id="ratingExposure"></div>
             </article>
-            <article class="card chart-card">
-              <h2>Sector Exposure</h2>
-              <div class="bars" id="sectorExposure"></div>
+            <article class="donut-panel">
+              <div class="section-head">
+                <h2>Sector Exposure</h2>
+                <span class="section-tag">Exposure</span>
+              </div>
+              <div id="sectorExposure"></div>
             </article>
           </section>
 
-          <section class="grid-2">
-            <article class="card chart-card">
-              <h2>Maturity Distribution</h2>
+          <section class="analysis-grid">
+            <article class="card chart-card maturity-card">
+              <div class="section-head">
+                <h2>Maturity Distribution</h2>
+                <span class="section-tag">Time ladder</span>
+              </div>
               <div class="bars" id="maturityDistribution"></div>
             </article>
-            <article class="card chart-card scenario">
-              <h2>Interest Rate Scenario</h2>
-              <p class="muted">
-                Simplified duration estimate: price impact is approximately
-                portfolio value x weighted duration x rate move.
-              </p>
+            <article class="card chart-card scenario-card">
+              <div class="section-head">
+                <div>
+                  <h2>Interest Rate Scenario</h2>
+                  <p class="muted" style="margin: 8px 0 0">100 basis points = 1 percentage point</p>
+                </div>
+                <span style="color: #ff9c91; font-size: 32px">↘</span>
+              </div>
               <div class="shock-grid" id="scenarioGrid"></div>
             </article>
-          </section>
 
-          <section class="card chart-card">
-            <h2>Gain/Loss Contributors</h2>
-            <div class="bars" id="gainLossContributors"></div>
+            <section class="card chart-card">
+              <h2>Gain/Loss Contributors</h2>
+              <div class="bars" id="gainLossContributors"></div>
+            </section>
           </section>
 
           <section class="card table-card">
-            <h2>Bond Positions</h2>
+            <div class="section-head">
+              <h2>Bond Positions</h2>
+              <span class="muted">Gain/Loss = market value - purchase cost</span>
+            </div>
             <div class="table-wrap" id="positionsWrap"></div>
           </section>
         </main>
@@ -733,16 +1548,22 @@
         selected: bonds[0],
         portfolios: [],
         activePortfolio: null,
-        positions: []
+        positions: [],
+        scenarioBps: 100
       };
 
       const els = {
+        landing: document.querySelector("#landing"),
+        dashboard: document.querySelector("#dashboard"),
+        drawer: document.querySelector(".sidebar"),
+        workspaceMeta: document.querySelector("#workspaceMeta"),
         portfolioList: document.querySelector("#portfolioList"),
         statusLine: document.querySelector("#statusLine"),
         search: document.querySelector("#bondSearch"),
         results: document.querySelector("#bondResults"),
         selectedTitle: document.querySelector("#selectedTitle"),
         selectedSummary: document.querySelector("#selectedSummary"),
+        selectedPanel: document.querySelector("#selectedBondPanel"),
         units: document.querySelector("#units"),
         purchasePrice: document.querySelector("#purchasePrice"),
         currentPrice: document.querySelector("#currentPrice"),
@@ -750,10 +1571,51 @@
         addBond: document.querySelector("#addBond"),
         loadSample: document.querySelector("#loadSample"),
         createPortfolio: document.querySelector("#createPortfolio"),
-        deletePortfolio: document.querySelector("#deletePortfolio")
+        deletePortfolio: document.querySelector("#deletePortfolio"),
+        enterDashboard: document.querySelector("#enterDashboard"),
+        enterDashboardHero: document.querySelector("#enterDashboardHero"),
+        backLanding: document.querySelector("#backLanding"),
+        landingSample: document.querySelector("#landingSample"),
+        landingSampleHero: document.querySelector("#landingSampleHero"),
+        openAddBond: document.querySelector("#openAddBond"),
+        openAddBondHero: document.querySelector("#openAddBondHero"),
+        openAddBondHeroAction: document.querySelector("#openAddBondHeroAction"),
+        importCsv: document.querySelector("#importCsv"),
+        closeAddBond: document.querySelector("#closeAddBond")
       };
 
       const clientId = getClientId();
+
+      function showDashboard() {
+        els.landing.classList.add("is-hidden");
+        els.dashboard.classList.remove("is-hidden");
+        window.scrollTo({ top: 0, left: 0 });
+        if (location.hash !== "#dashboard") {
+          history.pushState(null, "", "#dashboard");
+        }
+      }
+
+      function showLanding() {
+        closeDrawer();
+        els.dashboard.classList.add("is-hidden");
+        els.landing.classList.remove("is-hidden");
+        window.scrollTo({ top: 0, left: 0 });
+        if (location.hash) {
+          history.pushState(null, "", location.pathname);
+        }
+      }
+
+      function openDrawer() {
+        showDashboard();
+        els.drawer.classList.add("open");
+        document.body.classList.add("drawer-open");
+        window.setTimeout(() => els.search.focus(), 120);
+      }
+
+      function closeDrawer() {
+        els.drawer.classList.remove("open");
+        document.body.classList.remove("drawer-open");
+      }
 
       function getClientId() {
         const key = "yieldlens-gh-pages-client";
@@ -786,11 +1648,22 @@
           .replace(/"/g, "&quot;");
       }
 
+      function tooltip(value) {
+        return escapeHtml(value);
+      }
+
       function formatInr(value) {
-        return `INR ${Number(value || 0).toLocaleString("en-IN", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
+        return `₹${Number(value || 0).toLocaleString("en-IN", {
+          maximumFractionDigits: 0
         })}`;
+      }
+
+      function formatInrCompact(value) {
+        const amount = Number(value || 0);
+        if (Math.abs(amount) >= 10000000) return `₹${(amount / 10000000).toFixed(1)}Cr`;
+        if (Math.abs(amount) >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
+        if (Math.abs(amount) >= 1000) return `₹${(amount / 1000).toFixed(1)}K`;
+        return formatInr(amount);
       }
 
       function formatPct(value) {
@@ -880,7 +1753,11 @@
         });
       }
 
-      function setSelected(bond) {
+      function scrollToSelectedPanel() {
+        els.selectedPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function setSelected(bond, options = {}) {
         state.selected = bond;
         els.selectedTitle.textContent = bond.issuer;
         els.selectedSummary.textContent = `${bond.securityName} • ${bond.coupon.toFixed(2)}% • ${bond.maturity} • ${bond.isin}`;
@@ -888,6 +1765,12 @@
         els.purchasePrice.value = bond.faceValue.toFixed(2);
         els.currentPrice.value = bond.price.toFixed(2);
         renderBondResults();
+        const selectedButton = els.results.querySelector(`[data-isin="${bond.isin}"]`);
+        selectedButton?.classList.add("just-selected");
+        window.setTimeout(() => selectedButton?.classList.remove("just-selected"), 520);
+        if (options.scroll) {
+          window.setTimeout(scrollToSelectedPanel, 180);
+        }
       }
 
       function filteredBonds() {
@@ -916,7 +1799,7 @@
         els.results.querySelectorAll("button").forEach((button) => {
           button.addEventListener("click", () => {
             const bond = bonds.find((item) => item.isin === button.dataset.isin);
-            if (bond) setSelected(bond);
+            if (bond) setSelected(bond, { scroll: true });
           });
         });
       }
@@ -931,32 +1814,56 @@
           alert("Enter valid units and current price per unit.");
           return;
         }
-        await api(`/api/portfolios/${portfolio.id}/positions`, {
-          method: "POST",
-          body: JSON.stringify({
-            isin: state.selected.isin,
-            units,
-            purchasePrice: Number.isFinite(purchasePrice) && purchasePrice > 0 ? purchasePrice : state.selected.faceValue,
-            currentPrice,
-            purchaseDate: els.purchaseDate.value
-          })
-        });
-        await loadPortfolio(portfolio.id);
-        await loadPortfolios();
+        els.addBond.disabled = true;
+        els.addBond.textContent = "Adding...";
+        try {
+          await api(`/api/portfolios/${portfolio.id}/positions`, {
+            method: "POST",
+            body: JSON.stringify({
+              isin: state.selected.isin,
+              units,
+              purchasePrice: Number.isFinite(purchasePrice) && purchasePrice > 0 ? purchasePrice : state.selected.faceValue,
+              currentPrice,
+              purchaseDate: els.purchaseDate.value
+            })
+          });
+          await loadPortfolio(portfolio.id);
+          await loadPortfolios();
+          els.addBond.textContent = "Added";
+          window.setTimeout(() => {
+            els.addBond.disabled = false;
+            els.addBond.textContent = "Add to portfolio";
+          }, 700);
+          closeDrawer();
+        } catch (error) {
+          els.addBond.disabled = false;
+          els.addBond.textContent = "Add to portfolio";
+          throw error;
+        }
       }
 
       async function loadSample() {
+        showDashboard();
         const portfolio = await ensurePortfolio();
+        const failures = [];
         for (const [isin, units, purchasePrice] of samplePositions) {
           const bond = bonds.find((item) => item.isin === isin);
           if (!bond) continue;
-          await api(`/api/portfolios/${portfolio.id}/positions`, {
-            method: "POST",
-            body: JSON.stringify({ isin, units, purchasePrice, currentPrice: bond.price })
-          });
+          try {
+            await api(`/api/portfolios/${portfolio.id}/positions`, {
+              method: "POST",
+              body: JSON.stringify({ isin, units, purchasePrice, currentPrice: bond.price })
+            });
+          } catch (error) {
+            failures.push(isin);
+          }
         }
         await loadPortfolio(portfolio.id);
         await loadPortfolios();
+        if (failures.length) {
+          setStatus(`Loaded sample portfolio, but ${failures.length} sample bond${failures.length === 1 ? "" : "s"} could not be added.`);
+        }
+        closeDrawer();
       }
 
       async function removePosition(positionId) {
@@ -1028,41 +1935,205 @@
           .join("");
       }
 
+      function renderExposureDonut(target, rows) {
+        const el = document.querySelector(target);
+        if (!rows.length) {
+          el.innerHTML = '<div class="empty">Add bonds to populate this exposure chart.</div>';
+          return;
+        }
+
+        const colors = ["#00897b", "#b8852f", "#a95f3d", "#345c56", "#6f786b"];
+        let cursor = 0;
+        const gradient = rows
+          .map((row, index) => {
+            const start = cursor;
+            const end = cursor + row.percent * 3.6;
+            cursor = end;
+            return `${colors[index % colors.length]} ${start}deg ${end}deg`;
+          })
+          .join(", ");
+
+        el.innerHTML = `
+          <div class="donut-wrap">
+            <div
+              class="donut"
+              tabindex="0"
+              title="${tooltip(rows.map((row) => `${row.label}: ${formatPct(row.percent)}`).join(" • "))}"
+              data-tooltip="${tooltip(rows.map((row) => `${row.label}: ${formatPct(row.percent)}`).join(" • "))}"
+              style="background: conic-gradient(${gradient});"
+            ></div>
+          </div>
+          <div>
+            ${rows
+              .map((row, index) => `
+                <div class="legend-row" tabindex="0" data-tooltip="${tooltip(`${row.label}: ${formatInr(row.value)} market value, ${formatPct(row.percent)} of portfolio`)}">
+                  <span class="legend-swatch" style="background: ${colors[index % colors.length]}"></span>
+                  <span>${escapeHtml(row.label)}</span>
+                  <strong>${formatPct(row.percent)}</strong>
+                </div>
+              `)
+              .join("")}
+          </div>
+        `;
+      }
+
+      function renderMaturityChart(target, rows, totalValue) {
+        const el = document.querySelector(target);
+        const labels = ["< 1 year", "1-3 years", "3-5 years", "5-10 years", "10+ years"];
+        const values = labels.map((label) => rows.find((row) => row.label === label)?.value || 0);
+        const max = Math.max(...values, totalValue || 0, 1);
+        const axisMax = Math.ceil(max / 300) * 300;
+
+        if (!rows.length) {
+          el.innerHTML = '<div class="empty">Add bonds to populate this maturity ladder.</div>';
+          return;
+        }
+
+        el.innerHTML = `
+          <div class="maturity-chart">
+            <div class="axis-labels">
+              <span>${formatInrCompact(axisMax)}</span>
+              <span>${formatInrCompact(axisMax * 0.75)}</span>
+              <span>${formatInrCompact(axisMax * 0.5)}</span>
+              <span>${formatInrCompact(axisMax * 0.25)}</span>
+              <span>₹0</span>
+            </div>
+            <div class="maturity-plot">
+              ${labels
+                .map((label, index) => `
+                  <div class="maturity-bucket" tabindex="0" data-tooltip="${tooltip(`${label}: ${formatInr(values[index])} market value, ${totalValue ? formatPct((values[index] / totalValue) * 100) : "0.00%"} of portfolio`)}">
+                    <div class="maturity-bar" style="height: ${Math.max(2, (values[index] / axisMax) * 100)}%"></div>
+                    <span class="maturity-label">${label}</span>
+                  </div>
+                `)
+                .join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      function renderScenarioPanel(target, data) {
+        const el = document.querySelector(target);
+        const bpsValues = [-200, -100, -50, 50, 100, 200];
+        const bps = state.scenarioBps;
+        const change = -(data.totalValue * data.avgDuration * (bps / 10000));
+        const estimated = data.totalValue + change;
+        const percentImpact = data.totalValue ? (change / data.totalValue) * 100 : 0;
+        const rowImpacts = data.rows
+          .map((row) => ({
+            label: row.bond.securityName,
+            isin: row.bond.isin,
+            impact: -(row.marketValue * row.bond.duration * (bps / 10000)),
+            percent: row.bond.duration ? -(row.bond.duration * (bps / 100)) : 0
+          }))
+          .sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact))
+          .slice(0, 3);
+
+        el.innerHTML = `
+          <div class="scenario-buttons">
+            ${bpsValues
+              .map((value) => `
+                <button class="scenario-button ${value === bps ? "active" : ""}" data-bps="${value}">
+                  ${value > 0 ? "+" : ""}${value} bps
+                </button>
+              `)
+              .join("")}
+          </div>
+          <div class="scenario-result">
+            <span>Rates ${bps > 0 ? "+" : ""}${bps} bps</span>
+            <strong class="${change >= 0 ? "gain" : "loss"}">${formatInr(change)}</strong>
+            <span>${formatPct(percentImpact)} estimated portfolio impact</span>
+            <div class="scenario-meta">
+              <div>
+                <span>Portfolio Value</span>
+                <strong style="font-size: 24px; margin-top: 6px">${formatInrCompact(data.totalValue)} to ${formatInrCompact(estimated)}</strong>
+              </div>
+              <div>
+                <span>Coverage</span>
+                <strong style="font-size: 24px; margin-top: 6px">${data.rows.length ? "100.00%" : "0.00%"}</strong>
+              </div>
+            </div>
+          </div>
+          <h3 style="font-size: 24px; margin: 34px 0 0">Largest Contributors</h3>
+          <div class="scenario-contributors">
+            ${
+              rowImpacts.length
+                ? rowImpacts
+                    .map((row) => `
+                      <div class="scenario-contributor" tabindex="0" data-tooltip="${tooltip(`${row.label}: estimated ${formatInr(row.impact)} move for ${bps > 0 ? "+" : ""}${bps} bps`)}">
+                        <div>
+                          <strong style="font-size: 22px">${escapeHtml(row.label)}</strong>
+                          <span class="muted" style="display: block; margin-top: 6px">${row.isin} • ${formatPct(row.percent)}</span>
+                        </div>
+                        <strong class="${row.impact >= 0 ? "gain" : "loss"}" style="font-size: 24px">${formatInr(row.impact)}</strong>
+                      </div>
+                    `)
+                    .join("")
+                : '<div class="scenario-contributor"><span class="muted">Add bonds to see scenario contributors.</span></div>'
+            }
+          </div>
+          <p class="muted" style="font-size: 18px; line-height: 1.6; margin: 30px 0 0">
+            Approximation: estimated percentage price change is roughly negative duration multiplied by yield change.
+            Bonds without duration are excluded and reported through coverage.
+          </p>
+        `;
+
+        el.querySelectorAll("[data-bps]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.scenarioBps = Number(button.dataset.bps);
+            renderDashboard();
+          });
+        });
+      }
+
+      function renderGainLossContributors(target, rows) {
+        const el = document.querySelector(target);
+        if (!rows.length) {
+          el.innerHTML = '<p class="muted" style="font-size: 22px; margin: 0">Add purchase price per unit for positions to see unrealized gain/loss contributors.</p>';
+          return;
+        }
+        el.innerHTML = rows
+          .map((row) => `
+            <div class="bar-row" tabindex="0" data-tooltip="${tooltip(`${row.label}: contributes ${formatPct(row.percent)} of absolute portfolio gain/loss impact`)}">
+              <span>${escapeHtml(row.label)}</span>
+              <span class="track"><span class="fill" style="width: ${Math.min(100, row.percent)}%"></span></span>
+              <strong>${formatPct(row.percent)}</strong>
+            </div>
+          `)
+          .join("");
+      }
+
       function renderDashboard() {
         const data = analytics();
+        const updatedDate = state.activePortfolio
+          ? new Date(state.activePortfolio.updatedAt || state.activePortfolio.updated_at || Date.now()).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric"
+            })
+          : "today";
+        els.workspaceMeta.textContent = `${data.rows.length} ${data.rows.length === 1 ? "bond" : "bonds"} • Last updated ${updatedDate}`;
         document.querySelector("#portfolioValue").textContent = formatInr(data.totalValue);
         document.querySelector("#gainLoss").textContent = formatInr(data.gainLoss);
         document.querySelector("#gainLoss").className = data.gainLoss >= 0 ? "gain" : "loss";
-        document.querySelector("#gainLossDetail").textContent = `Return on cost: ${formatPct(data.gainLossPercent)}`;
+        document.querySelector("#gainLossDetail").textContent = `Return on cost: ${data.totalCost ? formatPct(data.gainLossPercent) : "Not available"} • Coverage: ${data.rows.length ? "100.00%" : "0.00%"}`;
         document.querySelector("#weightedYield").textContent = formatPct(data.weightedYield);
         document.querySelector("#avgDuration").textContent = `${data.avgDuration.toFixed(2)} yrs`;
         document.querySelector("#dv01").textContent = formatInr(data.dv01);
 
-        renderBars("#ratingExposure", groupBy(data.rows, (row) => row.bond.rating), "teal");
-        renderBars("#sectorExposure", groupBy(data.rows, (row) => row.bond.sector), "brass");
+        document.querySelector("#portfolioValue").nextElementSibling.textContent = `Across ${data.rows.length} ${data.rows.length === 1 ? "position" : "positions"}`;
+        renderExposureDonut("#ratingExposure", groupBy(data.rows, (row) => row.bond.rating));
+        renderExposureDonut("#sectorExposure", groupBy(data.rows, (row) => row.bond.sector));
         const maturityOrder = ["< 1 year", "1-3 years", "3-5 years", "5-10 years", "10+ years"];
         const maturity = groupBy(data.rows, maturityBucket).sort((a, b) => maturityOrder.indexOf(a.label) - maturityOrder.indexOf(b.label));
-        renderBars("#maturityDistribution", maturity, "copper");
+        renderMaturityChart("#maturityDistribution", maturity, data.totalValue);
         const contributors = data.rows
           .slice()
           .sort((a, b) => Math.abs(b.gainLoss) - Math.abs(a.gainLoss))
           .slice(0, 6)
           .map((row) => ({ label: row.bond.issuer, percent: data.totalValue ? Math.min(100, Math.abs(row.gainLoss) / data.totalValue * 100) : 0 }));
-        renderBars("#gainLossContributors", contributors, "teal");
-
-        document.querySelector("#scenarioGrid").innerHTML = [-100, -50, 50, 100]
-          .map((bps) => {
-            const change = -(data.totalValue * data.avgDuration * (bps / 10000));
-            const estimated = data.totalValue + change;
-            return `
-              <div class="shock">
-                <span>${bps > 0 ? "+" : ""}${bps} bps</span>
-                <strong class="${change >= 0 ? "gain" : "loss"}">${formatInr(change)}</strong>
-                <small>${formatInr(estimated)} estimated value</small>
-              </div>
-            `;
-          })
-          .join("");
+        renderGainLossContributors("#gainLossContributors", contributors);
+        renderScenarioPanel("#scenarioGrid", data);
 
         renderPositions(data.rows);
       }
@@ -1122,10 +2193,28 @@
       els.loadSample.addEventListener("click", () => loadSample().catch(showError));
       els.createPortfolio.addEventListener("click", () => createPortfolio().catch(showError));
       els.deletePortfolio.addEventListener("click", () => deleteActivePortfolio().catch(showError));
+      els.enterDashboard.addEventListener("click", showDashboard);
+      els.enterDashboardHero.addEventListener("click", showDashboard);
+      els.backLanding.addEventListener("click", showLanding);
+      els.landingSample.addEventListener("click", () => loadSample().catch(showError));
+      els.landingSampleHero.addEventListener("click", () => loadSample().catch(showError));
+      els.openAddBond.addEventListener("click", openDrawer);
+      els.openAddBondHero.addEventListener("click", openDrawer);
+      els.openAddBondHeroAction.addEventListener("click", openDrawer);
+      els.importCsv.addEventListener("click", () => {
+        setStatus("CSV import is available in the local full-stack app. Use Add Bond on GitHub Pages for now.");
+      });
+      els.closeAddBond.addEventListener("click", closeDrawer);
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeDrawer();
+      });
 
       setSelected(bonds[0]);
       renderBondResults();
       renderDashboard();
+      if (location.hash === "#dashboard") {
+        showDashboard();
+      }
       loadPortfolios().catch(showError);
     </script>
   </body>

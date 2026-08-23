@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="YieldLens is a fixed-income analytics workspace for portfolio value, risk, gain/loss, exposure, and rate scenarios."
+    />
+    <title>YieldLens - Bond Portfolio Analytics</title>
+    <style>
+      :root {
+        --paper: #eef1eb;
+        --panel: #fffaf0;
+        --ink: #171915;
+        --muted: #6d7169;
+        --night: #11150f;
+        --line: #d8d4c8;
+        --accent: #00897b;
+        --accent-soft: #d9f1eb;
+        --brass: #b8852f;
+        --copper: #a95f3d;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          linear-gradient(90deg, rgba(17, 21, 15, 0.035) 1px, transparent 1px),
+          linear-gradient(180deg, rgba(17, 21, 15, 0.03) 1px, transparent 1px),
+          var(--paper);
+        background-size: 28px 28px;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .hero {
+        min-height: 100vh;
+        padding: 24px;
+      }
+
+      .nav {
+        align-items: center;
+        background: var(--night);
+        border-radius: 8px;
+        box-shadow: 0 22px 60px rgba(17, 21, 15, 0.24);
+        color: var(--panel);
+        display: flex;
+        justify-content: space-between;
+        margin: 0 auto;
+        max-width: 1180px;
+        padding: 18px 20px;
+      }
+
+      .brand-kicker,
+      .eyebrow,
+      .mini-label {
+        color: #b9d8d2;
+        display: inline-flex;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .nav p {
+        color: #bfc6bd;
+        font-size: 14px;
+        margin: 4px 0 0;
+      }
+
+      .nav-link {
+        border: 1px solid rgba(255, 250, 240, 0.24);
+        border-radius: 6px;
+        color: var(--panel);
+        font-size: 14px;
+        font-weight: 800;
+        padding: 10px 14px;
+      }
+
+      .hero-grid {
+        align-items: center;
+        display: grid;
+        gap: 42px;
+        grid-template-columns: 0.88fr 1.12fr;
+        margin: 0 auto;
+        max-width: 1180px;
+        min-height: calc(100vh - 98px);
+        padding: 56px 0 28px;
+      }
+
+      .hero-copy {
+        max-width: 620px;
+      }
+
+      .hero-copy .eyebrow {
+        background: var(--accent-soft);
+        border-radius: 4px;
+        color: var(--accent);
+        padding: 8px 10px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: clamp(56px, 9vw, 108px);
+        letter-spacing: 0;
+        line-height: 0.94;
+        margin: 24px 0 22px;
+      }
+
+      h2 {
+        font-size: clamp(34px, 5vw, 58px);
+        letter-spacing: 0;
+        line-height: 1;
+        margin: 14px 0 18px;
+      }
+
+      h3 {
+        font-size: 18px;
+        margin-bottom: 8px;
+      }
+
+      .hero-copy p,
+      .section-heading p,
+      .split > div > p {
+        color: var(--muted);
+        font-size: 20px;
+        line-height: 1.7;
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 32px;
+      }
+
+      .button {
+        border-radius: 6px;
+        display: inline-flex;
+        font-size: 14px;
+        font-weight: 850;
+        justify-content: center;
+        padding: 13px 18px;
+      }
+
+      .button.primary {
+        background: var(--night);
+        color: var(--panel);
+      }
+
+      .button.secondary {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        color: var(--ink);
+      }
+
+      .terminal-card {
+        background: var(--night);
+        border: 1px solid rgba(255, 250, 240, 0.12);
+        border-radius: 8px;
+        box-shadow: 0 30px 80px rgba(17, 21, 15, 0.34);
+        color: var(--panel);
+        padding: 22px;
+      }
+
+      .terminal-top {
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 250, 240, 0.12);
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: 18px;
+      }
+
+      .terminal-top h2 {
+        font-size: 28px;
+        margin: 6px 0 0;
+      }
+
+      .pill {
+        background: var(--panel);
+        border-radius: 4px;
+        color: var(--night);
+        font-size: 12px;
+        font-weight: 850;
+        padding: 7px 10px;
+      }
+
+      .metric-grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin-top: 18px;
+      }
+
+      .metric {
+        background: rgba(255, 250, 240, 0.1);
+        border: 1px solid rgba(255, 250, 240, 0.1);
+        border-radius: 7px;
+        padding: 14px;
+      }
+
+      .metric span,
+      .metric small,
+      .table-head {
+        color: #bfc6bd;
+      }
+
+      .metric strong {
+        display: block;
+        font-size: 21px;
+        margin: 10px 0 8px;
+      }
+
+      .chart-row {
+        align-items: end;
+        display: grid;
+        gap: 8px;
+        grid-template-columns: repeat(12, 1fr);
+        height: 132px;
+        margin: 22px 0;
+      }
+
+      .chart-track {
+        align-items: end;
+        background: rgba(255, 250, 240, 0.08);
+        border-radius: 5px;
+        display: flex;
+        height: 100%;
+        padding: 5px;
+      }
+
+      .bar {
+        border-radius: 4px;
+        display: block;
+        width: 100%;
+      }
+
+      .bar.teal {
+        background: var(--accent);
+      }
+
+      .bar.brass {
+        background: var(--brass);
+      }
+
+      .bar.copper {
+        background: var(--copper);
+      }
+
+      .table {
+        border: 1px solid rgba(255, 250, 240, 0.12);
+        border-radius: 7px;
+        overflow: hidden;
+      }
+
+      .table-head,
+      .table-row {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: 1.6fr 0.55fr 0.65fr 0.9fr 0.9fr;
+        padding: 12px 14px;
+      }
+
+      .table-head {
+        background: rgba(255, 250, 240, 0.1);
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .table-row {
+        border-top: 1px solid rgba(255, 250, 240, 0.12);
+        font-size: 14px;
+      }
+
+      .gain {
+        color: #7ce0c6;
+        font-weight: 850;
+      }
+
+      .loss {
+        color: #ff9c91;
+        font-weight: 850;
+      }
+
+      .section {
+        margin: 0 auto;
+        max-width: 1180px;
+        padding: 72px 24px;
+      }
+
+      .section-heading {
+        max-width: 760px;
+      }
+
+      .section-heading .eyebrow,
+      .split .eyebrow {
+        color: var(--accent);
+      }
+
+      .feature-grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin-top: 30px;
+      }
+
+      .feature-grid article,
+      .architecture-list article {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: 0 18px 45px rgba(23, 25, 21, 0.1);
+        padding: 22px;
+      }
+
+      .feature-grid span {
+        color: var(--brass);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+      }
+
+      .feature-grid p,
+      .architecture-list p {
+        color: var(--muted);
+        line-height: 1.65;
+        margin-bottom: 0;
+      }
+
+      .split {
+        display: grid;
+        gap: 44px;
+        grid-template-columns: 0.9fr 1.1fr;
+      }
+
+      .architecture-list {
+        display: grid;
+        gap: 14px;
+      }
+
+      .stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .stack span {
+        background: var(--night);
+        border-radius: 999px;
+        color: var(--panel);
+        font-size: 14px;
+        font-weight: 800;
+        padding: 11px 14px;
+      }
+
+      footer {
+        align-items: center;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+        margin: 0 auto;
+        max-width: 1180px;
+        padding: 28px 24px 42px;
+      }
+
+      footer strong {
+        color: var(--ink);
+      }
+
+      @media (max-width: 960px) {
+        .hero-grid,
+        .split {
+          grid-template-columns: 1fr;
+        }
+
+        .metric-grid,
+        .feature-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 680px) {
+        .hero {
+          padding: 14px;
+        }
+
+        .nav,
+        footer {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .hero-grid {
+          padding-top: 36px;
+        }
+
+        .metric-grid,
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .terminal-card {
+          padding: 14px;
+        }
+
+        .table {
+          overflow-x: auto;
+        }
+
+        .table-head,
+        .table-row {
+          grid-template-columns: 180px 64px 70px 110px 110px;
+          min-width: 560px;
+        }
+
+        .section {
+          padding: 54px 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <nav class="nav">
+          <div>
+            <span class="brand-kicker">YieldLens</span>
+            <p>A command desk for fixed-income clarity</p>
+          </div>
+          <a href="#case-study" class="nav-link">View case study</a>
+        </nav>
+
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <span class="eyebrow">Resume-ready full-stack project</span>
+            <h1>See bonds like a desk would.</h1>
+            <p>
+              YieldLens is a fixed-income portfolio analytics workspace with a typed Python API,
+              normalized bond data, SQL-backed metrics, and a polished Next.js dashboard.
+            </p>
+            <div class="cta-row">
+              <a href="#demo" class="button primary">Explore live demo</a>
+              <a href="#architecture" class="button secondary">Read architecture</a>
+            </div>
+          </div>
+
+          <div class="terminal-card" id="demo" aria-label="YieldLens demo dashboard preview">
+            <div class="terminal-top">
+              <div>
+                <span class="mini-label">Portfolio tape</span>
+                <h2>Core Bond Workspace</h2>
+              </div>
+              <span class="pill">INR</span>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span>Portfolio Value</span><strong>INR 6,048.75</strong><small>Across 2 sample positions</small></div>
+              <div class="metric"><span>Gain/Loss</span><strong>+INR 33.75</strong><small>Return on cost: 0.56%</small></div>
+              <div class="metric"><span>Weighted Yield</span><strong>8.16%</strong><small>100% data coverage</small></div>
+              <div class="metric"><span>Avg Duration</span><strong>3.85 yrs</strong><small>Duration-based risk view</small></div>
+            </div>
+            <div class="chart-row" aria-hidden="true">
+              <div class="chart-track"><span class="bar copper" style="height:34%"></span></div>
+              <div class="chart-track"><span class="bar teal" style="height:58%"></span></div>
+              <div class="chart-track"><span class="bar teal" style="height:47%"></span></div>
+              <div class="chart-track"><span class="bar brass" style="height:72%"></span></div>
+              <div class="chart-track"><span class="bar copper" style="height:42%"></span></div>
+              <div class="chart-track"><span class="bar teal" style="height:88%"></span></div>
+              <div class="chart-track"><span class="bar brass" style="height:63%"></span></div>
+              <div class="chart-track"><span class="bar teal" style="height:76%"></span></div>
+              <div class="chart-track"><span class="bar copper" style="height:51%"></span></div>
+              <div class="chart-track"><span class="bar brass" style="height:69%"></span></div>
+              <div class="chart-track"><span class="bar teal" style="height:45%"></span></div>
+              <div class="chart-track"><span class="bar teal" style="height:82%"></span></div>
+            </div>
+            <div class="table">
+              <div class="table-head"><span>Bond</span><span>Rating</span><span>Coupon</span><span>Value</span><span>Gain/Loss</span></div>
+              <div class="table-row"><span>Adani Ports 2030 NCD</span><span>AA</span><span>8.45%</span><span>INR 5,035.50</span><span class="gain">+INR 25.50</span></div>
+              <div class="table-row"><span>Tata Motors 2030 NCD</span><span>AA+</span><span>8.25%</span><span>INR 1,013.25</span><span class="gain">+INR 8.25</span></div>
+              <div class="table-row"><span>Axis Bank 2032 Bond</span><span>AAA</span><span>8.00%</span><span>INR 1,018.20</span><span class="gain">+INR 18.20</span></div>
+              <div class="table-row"><span>Muthoot Finance 2028</span><span>AA</span><span>8.90%</span><span>INR 998.40</span><span class="loss">-INR 6.60</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="case-study">
+        <div class="section-heading">
+          <span class="eyebrow">What it demonstrates</span>
+          <h2>Built as a production-style MVP, not a static mockup.</h2>
+          <p>
+            The source project includes a real FastAPI backend, migrations, CSV import, provider
+            abstraction, analytics services, tests, and a Next.js portfolio dashboard.
+          </p>
+        </div>
+        <div class="feature-grid">
+          <article><span>01</span><h3>Portfolio workflows</h3><p>Create, rename, inspect, import, and manage bond positions with validation on both sides.</p></article>
+          <article><span>02</span><h3>Analytics engine</h3><p>Market value, gain/loss, weighted yield, duration, DV01, maturity buckets, and exposure.</p></article>
+          <article><span>03</span><h3>Risk scenarios</h3><p>Duration-based interest-rate shock analysis for common basis-point moves.</p></article>
+        </div>
+      </section>
+
+      <section class="section split" id="architecture">
+        <div>
+          <span class="eyebrow">Architecture</span>
+          <h2>Clean boundaries from provider data to portfolio insight.</h2>
+          <p>
+            YieldLens separates data acquisition, normalization, persistence, analytics, API
+            contracts, and UI state. That makes the project easy to explain, test, and extend.
+          </p>
+        </div>
+        <div class="architecture-list">
+          <article><h3>Provider layer</h3><p>Demo, live, and hybrid bond-data adapters normalize securities into one schema.</p></article>
+          <article><h3>Portfolio engine</h3><p>Positions reference a normalized bond master and store user-specific quantity and prices.</p></article>
+          <article><h3>SQL analytics</h3><p>Exposure, duration, DV01, maturity buckets, and gain/loss are aggregated close to the data.</p></article>
+          <article><h3>Decision UI</h3><p>A compact dashboard turns backend analytics into charts, tables, and scenario controls.</p></article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <span class="eyebrow">Stack</span>
+          <h2>Modern full-stack tools, chosen for clarity.</h2>
+        </div>
+        <div class="stack">
+          <span>FastAPI</span><span>SQLAlchemy</span><span>PostgreSQL</span><span>Pydantic</span>
+          <span>Next.js</span><span>TypeScript</span><span>Tailwind CSS</span><span>TanStack Query</span><span>Recharts</span>
+        </div>
+      </section>
+
+      <footer>
+        <strong>YieldLens</strong>
+        <span>Educational fixed-income analytics project. Demo data is used in this public showcase.</span>
+      </footer>
+    </main>
+  </body>
+</html>

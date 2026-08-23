@@ -1,0 +1,25 @@
+databases:
+  - name: yieldlens-db
+    databaseName: yieldlens
+    user: yieldlens
+    plan: free
+
+services:
+  - type: web
+    name: yieldlens-nikhilmotwaniiii-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: yieldlens-db
+          property: connectionString
+      - key: BACKEND_CORS_ORIGINS
+        value: https://nikhilmotwaniiii.github.io,http://localhost:3000,http://127.0.0.1:3000
+      - key: BOND_PROVIDER
+        value: demo
+      - key: ENVIRONMENT
+        value: production

@@ -7,8 +7,9 @@ The project is intentionally built like a production MVP: a typed FastAPI backen
 Live deployments:
 
 - GitHub Pages: https://nikhilmotwaniiii.github.io/YieldLens/
+- Render backend API: https://yieldlens-nikhilmotwaniiii-api.onrender.com
 
-The public GitHub Pages frontend uses browser-local portfolio storage by default so the live demo can create and revisit multiple portfolios without exposing a backend URL in the repository. The local project still includes the FastAPI backend, database-backed dashboard, CSV import, API routes, provider layer, and tests. To connect the static frontend to a deployed API, set `yieldlens-api-base` in browser local storage to that backend origin.
+The public GitHub Pages frontend calls the Render-hosted FastAPI backend by default. If you need to test another backend, set `yieldlens-api-base` in browser local storage to that backend origin. If the value is intentionally blanked in code, the static frontend can also fall back to browser-local storage.
 
 ## Quick Mental Model
 
@@ -775,18 +776,42 @@ High-impact next steps:
 
 ## Deployment Notes
 
-Potential deployment shape:
+Current deployment shape:
 
-- Frontend: Vercel or any Next.js-compatible host.
-- Backend: Render, Railway, Fly.io, ECS, or another container host.
-- Database: Neon, Supabase, Railway, Render PostgreSQL, or another managed PostgreSQL provider.
+- Frontend: GitHub Pages from `docs/index.html`.
+- Backend: FastAPI container deployable through `render.yaml`.
+- Database: PostgreSQL created by the Render blueprint.
+
+Render deployment:
+
+1. Push this repository to GitHub.
+2. In Render, choose **New > Blueprint**.
+3. Select this repository.
+4. Render reads `render.yaml` and creates:
+   - `yieldlens-nikhilmotwaniiii-api`, a free Docker web service.
+   - `yieldlens-db`, a free PostgreSQL database.
+5. Wait for the first deploy to finish.
+6. Open `/health` on the Render service URL and confirm it returns `{"status":"ok"}`.
+7. The GitHub Pages frontend is already configured to call:
+
+```text
+https://yieldlens-nikhilmotwaniiii-api.onrender.com
+```
+
+If Render assigns a different URL, update `API_BASE` in `docs/index.html` or set `yieldlens-api-base` in browser local storage to the actual Render origin.
+
+Free-tier limitations:
+
+- Render free web services sleep after inactivity and may take about a minute to wake up.
+- Render free PostgreSQL is suitable for demos, but currently expires after its free period unless upgraded.
+- For a long-lived resume project, use a durable managed PostgreSQL database or upgrade the Render database.
 
 Production checklist:
 
 - Set `DATABASE_URL` to a durable PostgreSQL database.
 - Run Alembic migrations.
 - Configure `BACKEND_CORS_ORIGINS`.
-- Set `NEXT_PUBLIC_API_BASE_URL`.
+- Set `NEXT_PUBLIC_API_BASE_URL` for the Next.js frontend or `yieldlens-api-base` for the GitHub Pages frontend.
 - Decide whether `BOND_PROVIDER` is `demo`, `indian`, or `hybrid`.
 - Configure live provider URLs/API key only if legally available.
 - Add authentication before real multi-user use.

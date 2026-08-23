@@ -1583,7 +1583,7 @@
     </div>
 
     <script>
-      const API_BASE = localStorage.getItem("yieldlens-api-base") || "";
+      const API_BASE = localStorage.getItem("yieldlens-api-base") || "https://yieldlens-nikhilmotwaniiii-api.onrender.com";
       const bonds = [
         ["INE001A08024", "HDFC Bank Limited", "HDFC Bank 7.95% 2031 Senior Bond", 7.95, "2031-08-15", 1000, "AAA", "Financial Services", 4.62, 1018.5, 7.58],
         ["INE001A08032", "HDFC Bank Limited", "HDFC Bank 8.10% 2033 Infrastructure Bond", 8.1, "2033-03-20", 1000, "AAA", "Financial Services", 5.75, 1026.4, 7.62],
@@ -1807,19 +1807,94 @@
         throw new Error("Local API route not implemented");
       }
 
-      async function api(path, options = {}) {
-        if (!API_BASE) return localApi(path, options);
-        const response = await fetch(`${API_BASE}${path}`, {
-          ...options,
+      function normalizeRemotePortfolio(portfolio) {
+        return {
+          id: portfolio.id,
+          name: portfolio.name,
+          createdAt: portfolio.created_at || portfolio.createdAt,
+          updatedAt: portfolio.updated_at || portfolio.updatedAt
+        };
+      }
+
+      function normalizeRemotePosition(position) {
+        return {
+          id: position.id,
+          portfolioId: position.portfolio_id,
+          isin: position.bond?.isin,
+          units: Number(position.quantity || 0),
+          purchasePrice: Number(position.purchase_price || position.bond?.face_value || 1000),
+          currentPrice: Number(position.manual_current_price || position.valuation_price || position.bond?.latest_price || position.purchase_price || 1000),
+          purchaseDate: position.purchase_date || null,
+          createdAt: position.created_at,
+          updatedAt: position.updated_at
+        };
+      }
+
+      function remoteRequest(path, options = {}) {
+        const method = options.method || "GET";
+        const body = options.body ? JSON.parse(options.body) : null;
+        let remotePath = path.replace(/^\/api\//, "/api/v1/");
+        let remoteOptions = { ...options };
+
+        const positionsMatch = path.match(/^\/api\/portfolios\/(\d+)\/positions$/);
+        if (positionsMatch && method === "POST" && body) {
+          remoteOptions = {
+            ...options,
+            body: JSON.stringify({
+              isin: body.isin,
+              quantity: body.units,
+              purchase_price: body.purchasePrice,
+              manual_current_price: body.currentPrice,
+              purchase_date: body.purchaseDate || null
+            })
+          };
+        }
+
+        if (positionsMatch && method === "GET") {
+          remotePath = `/api/v1/portfolios/${positionsMatch[1]}`;
+        }
+
+        return fetch(`${API_BASE}${remotePath}`, {
+          ...remoteOptions,
           headers: {
             "Content-Type": "application/json",
             "x-yieldlens-client": clientId,
-            ...(options.headers || {})
+            ...(remoteOptions.headers || {})
           }
         });
+      }
+
+      async function remoteApi(path, options = {}) {
+        const method = options.method || "GET";
+        const response = await remoteRequest(path, options);
+        if (response.status === 204) return { ok: true };
         const body = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(body.error || "Request failed");
+        if (!response.ok) {
+          throw new Error(body.error?.message || body.detail || body.error || "Request failed");
+        }
+
+        if (path === "/api/portfolios" && method === "GET") {
+          return { portfolios: body.map(normalizeRemotePortfolio) };
+        }
+        if (path === "/api/portfolios" && method === "POST") {
+          return { portfolio: normalizeRemotePortfolio(body) };
+        }
+        const positionsMatch = path.match(/^\/api\/portfolios\/(\d+)\/positions$/);
+        if (positionsMatch && method === "GET") {
+          return {
+            portfolio: normalizeRemotePortfolio(body),
+            positions: (body.positions || []).map(normalizeRemotePosition)
+          };
+        }
+        if (positionsMatch && method === "POST") {
+          return { position: normalizeRemotePosition(body) };
+        }
         return body;
+      }
+
+      async function api(path, options = {}) {
+        if (!API_BASE) return localApi(path, options);
+        return remoteApi(path, options);
       }
 
       function escapeHtml(value) {

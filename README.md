@@ -7,10 +7,8 @@ The project is intentionally built like a production MVP: a typed FastAPI backen
 Live deployments:
 
 - GitHub Pages: https://nikhilmotwaniiii.github.io/YieldLens/
-- Hosted backend API: https://yieldlens-bond-analytics.hbits.chatgpt.site/api
-- Backend status page: https://yieldlens-bond-analytics.hbits.chatgpt.site
 
-The public GitHub Pages frontend calls the hosted backend API for portfolio and position persistence. The ChatGPT-hosted root is intentionally only a backend status page with API links, not the product frontend. The local project in this repository still includes the FastAPI backend, database-backed dashboard, CSV import, API routes, provider layer, and tests.
+The public GitHub Pages frontend uses browser-local portfolio storage by default so the live demo can create and revisit multiple portfolios without exposing a backend URL in the repository. The local project still includes the FastAPI backend, database-backed dashboard, CSV import, API routes, provider layer, and tests. To connect the static frontend to a deployed API, set `yieldlens-api-base` in browser local storage to that backend origin.
 
 ## Quick Mental Model
 

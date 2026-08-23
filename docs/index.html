@@ -1577,13 +1577,13 @@
 
       <footer>
         YieldLens is an educational fixed-income analytics project. This GitHub Pages frontend uses
-        demo bond reference data and persists portfolio records through the hosted backend API. It
+        demo bond reference data and browser-local portfolio storage unless a backend API is configured. It
         is not investment advice, a live market-data feed, or a full bond-pricing model.
       </footer>
     </div>
 
     <script>
-      const API_BASE = "https://yieldlens-bond-analytics.hbits.chatgpt.site";
+      const API_BASE = localStorage.getItem("yieldlens-api-base") || "";
       const bonds = [
         ["INE001A08024", "HDFC Bank Limited", "HDFC Bank 7.95% 2031 Senior Bond", 7.95, "2031-08-15", 1000, "AAA", "Financial Services", 4.62, 1018.5, 7.58],
         ["INE001A08032", "HDFC Bank Limited", "HDFC Bank 8.10% 2033 Infrastructure Bond", 8.1, "2033-03-20", 1000, "AAA", "Financial Services", 5.75, 1026.4, 7.62],
@@ -1703,7 +1703,112 @@
         return generated;
       }
 
+      function localStoreKey() {
+        return `yieldlens-local-store-${clientId}`;
+      }
+
+      function readLocalStore() {
+        const fallback = { nextPortfolioId: 1, nextPositionId: 1, portfolios: [], positions: [] };
+        try {
+          return { ...fallback, ...(JSON.parse(localStorage.getItem(localStoreKey())) || {}) };
+        } catch {
+          return fallback;
+        }
+      }
+
+      function writeLocalStore(store) {
+        localStorage.setItem(localStoreKey(), JSON.stringify(store));
+      }
+
+      function touchPortfolio(store, portfolioId) {
+        const portfolio = store.portfolios.find((item) => item.id === portfolioId);
+        if (portfolio) portfolio.updatedAt = new Date().toISOString();
+        return portfolio;
+      }
+
+      async function localApi(path, options = {}) {
+        const method = options.method || "GET";
+        const body = options.body ? JSON.parse(options.body) : {};
+        const store = readLocalStore();
+        const now = new Date().toISOString();
+
+        if (path === "/api/portfolios" && method === "GET") {
+          return {
+            portfolios: store.portfolios
+              .slice()
+              .sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0))
+          };
+        }
+
+        if (path === "/api/portfolios" && method === "POST") {
+          const portfolio = {
+            id: store.nextPortfolioId,
+            name: body.name || `Bond Portfolio ${store.nextPortfolioId}`,
+            createdAt: now,
+            updatedAt: now
+          };
+          store.nextPortfolioId += 1;
+          store.portfolios.unshift(portfolio);
+          writeLocalStore(store);
+          return { portfolio };
+        }
+
+        const portfolioMatch = path.match(/^\/api\/portfolios\/(\d+)$/);
+        if (portfolioMatch && method === "DELETE") {
+          const portfolioId = Number(portfolioMatch[1]);
+          store.portfolios = store.portfolios.filter((portfolio) => portfolio.id !== portfolioId);
+          store.positions = store.positions.filter((position) => position.portfolioId !== portfolioId);
+          writeLocalStore(store);
+          return { ok: true };
+        }
+
+        const positionsMatch = path.match(/^\/api\/portfolios\/(\d+)\/positions$/);
+        if (positionsMatch && method === "GET") {
+          const portfolioId = Number(positionsMatch[1]);
+          const portfolio = store.portfolios.find((item) => item.id === portfolioId);
+          if (!portfolio) throw new Error("Portfolio not found");
+          return {
+            portfolio,
+            positions: store.positions.filter((position) => position.portfolioId === portfolioId)
+          };
+        }
+
+        if (positionsMatch && method === "POST") {
+          const portfolioId = Number(positionsMatch[1]);
+          const portfolio = touchPortfolio(store, portfolioId);
+          if (!portfolio) throw new Error("Portfolio not found");
+          const position = {
+            id: store.nextPositionId,
+            portfolioId,
+            isin: body.isin,
+            units: Number(body.units),
+            purchasePrice: Number(body.purchasePrice),
+            currentPrice: Number(body.currentPrice),
+            purchaseDate: body.purchaseDate || null,
+            createdAt: now,
+            updatedAt: now
+          };
+          store.nextPositionId += 1;
+          store.positions.push(position);
+          writeLocalStore(store);
+          return { position };
+        }
+
+        const positionMatch = path.match(/^\/api\/portfolios\/(\d+)\/positions\/(\d+)$/);
+        if (positionMatch && method === "DELETE") {
+          const portfolioId = Number(positionMatch[1]);
+          const positionId = Number(positionMatch[2]);
+          store.positions = store.positions.filter((position) => position.id !== positionId || position.portfolioId !== portfolioId);
+          touchPortfolio(store, portfolioId);
+          writeLocalStore(store);
+          return { ok: true };
+        }
+
+        throw new Error("Local API route not implemented");
+      }
+
       async function api(path, options = {}) {
+        if (!API_BASE) return localApi(path, options);
         const response = await fetch(`${API_BASE}${path}`, {
           ...options,
           headers: {

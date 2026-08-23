@@ -40,10 +40,9 @@ jobs:
         run: npm ci
       - name: Lint
         run: npm run lint
-      - name: Typecheck
-        run: npm run typecheck
       - name: Tests
         run: npm run test
       - name: Build
         run: npm run build
-
+      - name: Typecheck
+        run: npm run typecheck

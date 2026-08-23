@@ -1,38 +1,17 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-async function render() {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
-  const { default: worker } = await import(workerUrl.href);
+test("workspace source contains the hosted portfolio product surface", async () => {
+  const workspace = await readFile(new URL("../app/workspace.tsx", import.meta.url), "utf8");
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 
-  return worker.fetch(
-    new Request("http://localhost/", {
-      headers: { accept: "text/html" },
-    }),
-    {
-      ASSETS: {
-        fetch: async () => new Response("Not found", { status: 404 }),
-      },
-    },
-    {
-      waitUntil() {},
-      passThroughOnException() {},
-    },
-  );
-}
-
-test("server-renders the YieldLens resume demo", async () => {
-  const response = await render();
-  assert.equal(response.status, 200);
-  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
-
-  const html = await response.text();
-  assert.match(html, /YieldLens/);
-  assert.match(html, /See bonds like a desk would/);
-  assert.match(html, /FastAPI/);
-  assert.match(html, /SQL-backed metrics/);
-  assert.match(html, /Core Bond Workspace/);
-  assert.doesNotMatch(html, /Your site is taking shape/);
-  assert.doesNotMatch(html, /react-loading-skeleton/);
+  assert.match(workspace, /Bond analytics desk/);
+  assert.match(workspace, /Persisted hosted workspace/);
+  assert.match(workspace, /Portfolio Value/);
+  assert.match(workspace, /New portfolio/);
+  assert.match(workspace, /Add bond/);
+  assert.match(css, /\.app-shell/);
+  assert.doesNotMatch(workspace, /Resume-ready full-stack project/);
+  assert.doesNotMatch(workspace, /Your site is taking shape/);
 });

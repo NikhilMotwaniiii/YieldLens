@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="YieldLens is a fixed-income analytics workspace for portfolio value, risk, gain/loss, exposure, and rate scenarios."
+      content="YieldLens is a browser-based fixed-income portfolio analytics workspace for bond value, gain/loss, exposure, maturity, and rate-scenario analysis."
     />
     <title>YieldLens - Bond Portfolio Analytics</title>
     <style>
@@ -13,13 +13,14 @@
         --paper: #eef1eb;
         --panel: #fffaf0;
         --ink: #171915;
-        --muted: #6d7169;
+        --muted: #686f66;
         --night: #11150f;
-        --line: #d8d4c8;
+        --line: #d7d3c8;
         --accent: #00897b;
         --accent-soft: #d9f1eb;
         --brass: #b8852f;
         --copper: #a95f3d;
+        --loss: #b44b43;
       }
 
       * {
@@ -41,75 +42,123 @@
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
 
-      a {
-        color: inherit;
-        text-decoration: none;
+      button,
+      input {
+        font: inherit;
       }
 
-      .hero {
-        min-height: 100vh;
-        padding: 24px;
+      button {
+        cursor: pointer;
       }
 
-      .nav {
+      .shell {
+        margin: 0 auto;
+        max-width: 1440px;
+        padding: 18px;
+      }
+
+      .topbar {
         align-items: center;
         background: var(--night);
         border-radius: 8px;
         box-shadow: 0 22px 60px rgba(17, 21, 15, 0.24);
         color: var(--panel);
         display: flex;
+        gap: 18px;
         justify-content: space-between;
-        margin: 0 auto;
-        max-width: 1180px;
         padding: 18px 20px;
       }
 
-      .brand-kicker,
-      .eyebrow,
-      .mini-label {
+      .brand {
         color: #b9d8d2;
-        display: inline-flex;
+        display: block;
         font-size: 12px;
-        font-weight: 800;
+        font-weight: 850;
         letter-spacing: 0.16em;
         text-transform: uppercase;
       }
 
-      .nav p {
+      .topbar p {
         color: #bfc6bd;
         font-size: 14px;
         margin: 4px 0 0;
       }
 
-      .nav-link {
-        border: 1px solid rgba(255, 250, 240, 0.24);
-        border-radius: 6px;
-        color: var(--panel);
-        font-size: 14px;
-        font-weight: 800;
-        padding: 10px 14px;
-      }
-
-      .hero-grid {
+      .top-actions {
         align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .button {
+        align-items: center;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        display: inline-flex;
+        font-size: 14px;
+        font-weight: 850;
+        justify-content: center;
+        min-height: 42px;
+        padding: 11px 15px;
+      }
+
+      .button.primary {
+        background: var(--panel);
+        color: var(--night);
+      }
+
+      .button.secondary {
+        background: transparent;
+        border-color: rgba(255, 250, 240, 0.24);
+        color: var(--panel);
+      }
+
+      .button.dark {
+        background: var(--night);
+        color: var(--panel);
+      }
+
+      .button.light {
+        background: var(--panel);
+        border-color: var(--line);
+        color: var(--ink);
+      }
+
+      .workspace {
         display: grid;
-        gap: 42px;
-        grid-template-columns: 0.88fr 1.12fr;
-        margin: 0 auto;
-        max-width: 1180px;
-        min-height: calc(100vh - 98px);
-        padding: 56px 0 28px;
+        gap: 18px;
+        grid-template-columns: minmax(300px, 390px) 1fr;
+        padding-top: 18px;
       }
 
-      .hero-copy {
-        max-width: 620px;
+      .panel,
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: 0 18px 45px rgba(23, 25, 21, 0.1);
       }
 
-      .hero-copy .eyebrow {
-        background: var(--accent-soft);
-        border-radius: 4px;
+      .sidebar {
+        align-self: start;
+        display: grid;
+        gap: 14px;
+        position: sticky;
+        top: 18px;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      .kicker {
         color: var(--accent);
-        padding: 8px 10px;
+        display: inline-flex;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
       }
 
       h1,
@@ -120,441 +169,829 @@
       }
 
       h1 {
-        font-size: clamp(56px, 9vw, 108px);
+        font-size: 40px;
         letter-spacing: 0;
-        line-height: 0.94;
-        margin: 24px 0 22px;
+        line-height: 1;
+        margin: 12px 0;
       }
 
       h2 {
-        font-size: clamp(34px, 5vw, 58px);
-        letter-spacing: 0;
-        line-height: 1;
-        margin: 14px 0 18px;
+        font-size: 18px;
+        margin-bottom: 12px;
       }
 
       h3 {
-        font-size: 18px;
+        font-size: 15px;
         margin-bottom: 8px;
       }
 
-      .hero-copy p,
-      .section-heading p,
-      .split > div > p {
+      .muted {
         color: var(--muted);
-        font-size: 20px;
-        line-height: 1.7;
+        line-height: 1.6;
       }
 
-      .cta-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-top: 32px;
+      .field {
+        display: grid;
+        gap: 6px;
       }
 
-      .button {
-        border-radius: 6px;
-        display: inline-flex;
-        font-size: 14px;
-        font-weight: 850;
-        justify-content: center;
-        padding: 13px 18px;
-      }
-
-      .button.primary {
-        background: var(--night);
-        color: var(--panel);
-      }
-
-      .button.secondary {
-        background: var(--panel);
-        border: 1px solid var(--line);
-        color: var(--ink);
-      }
-
-      .terminal-card {
-        background: var(--night);
-        border: 1px solid rgba(255, 250, 240, 0.12);
-        border-radius: 8px;
-        box-shadow: 0 30px 80px rgba(17, 21, 15, 0.34);
-        color: var(--panel);
-        padding: 22px;
-      }
-
-      .terminal-top {
-        align-items: center;
-        border-bottom: 1px solid rgba(255, 250, 240, 0.12);
-        display: flex;
-        justify-content: space-between;
-        padding-bottom: 18px;
-      }
-
-      .terminal-top h2 {
-        font-size: 28px;
-        margin: 6px 0 0;
-      }
-
-      .pill {
-        background: var(--panel);
-        border-radius: 4px;
-        color: var(--night);
+      .field span {
+        color: var(--muted);
         font-size: 12px;
-        font-weight: 850;
-        padding: 7px 10px;
+        font-weight: 800;
       }
 
-      .metric-grid {
+      .field small {
+        color: var(--muted);
+        line-height: 1.4;
+      }
+
+      input {
+        background: #fffdf7;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        color: var(--ink);
+        min-height: 42px;
+        padding: 10px 12px;
+        width: 100%;
+      }
+
+      input:focus {
+        border-color: var(--accent);
+        outline: 3px solid rgba(0, 137, 123, 0.16);
+      }
+
+      .search-results {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        max-height: 370px;
+        overflow: auto;
+      }
+
+      .bond-option {
+        background: #fffdf7;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        display: block;
+        padding: 12px;
+        text-align: left;
+        width: 100%;
+      }
+
+      .bond-option:hover,
+      .bond-option.selected {
+        background: var(--accent-soft);
+      }
+
+      .bond-option:last-child {
+        border-bottom: 0;
+      }
+
+      .bond-option strong {
+        display: block;
+        line-height: 1.3;
+      }
+
+      .bond-option small {
+        color: var(--muted);
+        display: block;
+        line-height: 1.5;
+        margin-top: 4px;
+      }
+
+      .notice {
+        background: var(--accent-soft);
+        border: 1px solid rgba(0, 137, 123, 0.28);
+        border-radius: 8px;
+        color: #256257;
+        font-size: 13px;
+        line-height: 1.55;
+        padding: 12px;
+      }
+
+      .form-grid {
         display: grid;
         gap: 12px;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        margin-top: 18px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-top: 14px;
+      }
+
+      .main {
+        display: grid;
+        gap: 18px;
+      }
+
+      .hero {
+        background: var(--night);
+        border-radius: 8px;
+        box-shadow: 0 22px 60px rgba(17, 21, 15, 0.24);
+        color: var(--panel);
+        overflow: hidden;
+        padding: 24px;
+      }
+
+      .hero h1 {
+        max-width: 820px;
+      }
+
+      .hero p {
+        color: #bfc6bd;
+        margin-bottom: 0;
+        max-width: 860px;
+      }
+
+      .metrics {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
       }
 
       .metric {
-        background: rgba(255, 250, 240, 0.1);
-        border: 1px solid rgba(255, 250, 240, 0.1);
-        border-radius: 7px;
-        padding: 14px;
+        padding: 18px;
       }
 
-      .metric span,
-      .metric small,
-      .table-head {
-        color: #bfc6bd;
+      .metric span {
+        color: var(--muted);
+        display: block;
+        font-size: 13px;
+        font-weight: 800;
       }
 
       .metric strong {
         display: block;
-        font-size: 21px;
-        margin: 10px 0 8px;
+        font-size: 25px;
+        margin: 10px 0 6px;
       }
 
-      .chart-row {
-        align-items: end;
+      .metric small {
+        color: var(--muted);
+        line-height: 1.4;
+      }
+
+      .grid-2 {
         display: grid;
-        gap: 8px;
-        grid-template-columns: repeat(12, 1fr);
-        height: 132px;
-        margin: 22px 0;
+        gap: 18px;
+        grid-template-columns: 1fr 1fr;
       }
 
-      .chart-track {
-        align-items: end;
-        background: rgba(255, 250, 240, 0.08);
-        border-radius: 5px;
-        display: flex;
-        height: 100%;
-        padding: 5px;
+      .chart-card,
+      .table-card {
+        padding: 18px;
       }
 
-      .bar {
-        border-radius: 4px;
-        display: block;
-        width: 100%;
+      .bars {
+        display: grid;
+        gap: 12px;
       }
 
-      .bar.teal {
-        background: var(--accent);
+      .bar-row {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: 120px 1fr 72px;
+        align-items: center;
+        font-size: 13px;
       }
 
-      .bar.brass {
-        background: var(--brass);
-      }
-
-      .bar.copper {
-        background: var(--copper);
-      }
-
-      .table {
-        border: 1px solid rgba(255, 250, 240, 0.12);
-        border-radius: 7px;
+      .track {
+        background: var(--paper);
+        border-radius: 999px;
+        height: 10px;
         overflow: hidden;
       }
 
-      .table-head,
-      .table-row {
-        display: grid;
-        gap: 14px;
-        grid-template-columns: 1.6fr 0.55fr 0.65fr 0.9fr 0.9fr;
-        padding: 12px 14px;
+      .fill {
+        background: var(--accent);
+        border-radius: 999px;
+        display: block;
+        height: 100%;
       }
 
-      .table-head {
-        background: rgba(255, 250, 240, 0.1);
+      .fill.brass {
+        background: var(--brass);
+      }
+
+      .fill.copper {
+        background: var(--copper);
+      }
+
+      .scenario {
+        display: grid;
+        gap: 14px;
+      }
+
+      .shock-grid {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .shock {
+        background: #fffdf7;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+      }
+
+      .shock span {
+        color: var(--muted);
+        display: block;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .shock strong {
+        display: block;
+        margin-top: 8px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        border-collapse: collapse;
+        min-width: 980px;
+        width: 100%;
+      }
+
+      th {
+        background: var(--night);
+        color: #c9d0c6;
         font-size: 11px;
-        font-weight: 850;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.1em;
+        padding: 12px;
+        text-align: left;
         text-transform: uppercase;
       }
 
-      .table-row {
-        border-top: 1px solid rgba(255, 250, 240, 0.12);
+      td {
+        border-top: 1px solid var(--line);
         font-size: 14px;
+        padding: 12px;
+        vertical-align: top;
+      }
+
+      td small {
+        color: var(--muted);
+        display: block;
+        margin-top: 4px;
       }
 
       .gain {
-        color: #7ce0c6;
+        color: var(--accent);
         font-weight: 850;
       }
 
       .loss {
-        color: #ff9c91;
+        color: var(--loss);
         font-weight: 850;
       }
 
-      .section {
-        margin: 0 auto;
-        max-width: 1180px;
-        padding: 72px 24px;
+      .remove {
+        background: #fff0ee;
+        border: 1px solid #efb0aa;
+        border-radius: 6px;
+        color: var(--loss);
+        font-weight: 850;
+        padding: 7px 10px;
       }
 
-      .section-heading {
-        max-width: 760px;
-      }
-
-      .section-heading .eyebrow,
-      .split .eyebrow {
-        color: var(--accent);
-      }
-
-      .feature-grid {
-        display: grid;
-        gap: 18px;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        margin-top: 30px;
-      }
-
-      .feature-grid article,
-      .architecture-list article {
-        background: var(--panel);
-        border: 1px solid var(--line);
+      .empty {
+        border: 1px dashed var(--line);
         border-radius: 8px;
-        box-shadow: 0 18px 45px rgba(23, 25, 21, 0.1);
-        padding: 22px;
-      }
-
-      .feature-grid span {
-        color: var(--brass);
-        font-size: 12px;
-        font-weight: 900;
-        letter-spacing: 0.16em;
-      }
-
-      .feature-grid p,
-      .architecture-list p {
         color: var(--muted);
-        line-height: 1.65;
-        margin-bottom: 0;
-      }
-
-      .split {
-        display: grid;
-        gap: 44px;
-        grid-template-columns: 0.9fr 1.1fr;
-      }
-
-      .architecture-list {
-        display: grid;
-        gap: 14px;
-      }
-
-      .stack {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-top: 28px;
-      }
-
-      .stack span {
-        background: var(--night);
-        border-radius: 999px;
-        color: var(--panel);
-        font-size: 14px;
-        font-weight: 800;
-        padding: 11px 14px;
+        padding: 20px;
+        text-align: center;
       }
 
       footer {
-        align-items: center;
-        border-top: 1px solid var(--line);
         color: var(--muted);
-        display: flex;
-        gap: 16px;
-        justify-content: space-between;
-        margin: 0 auto;
-        max-width: 1180px;
-        padding: 28px 24px 42px;
+        font-size: 12px;
+        line-height: 1.6;
+        padding: 24px 0 8px;
       }
 
-      footer strong {
-        color: var(--ink);
-      }
-
-      @media (max-width: 960px) {
-        .hero-grid,
-        .split {
+      @media (max-width: 1120px) {
+        .workspace {
           grid-template-columns: 1fr;
         }
 
-        .metric-grid,
-        .feature-grid {
+        .sidebar {
+          position: static;
+        }
+
+        .metrics {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
       }
 
-      @media (max-width: 680px) {
-        .hero {
-          padding: 14px;
+      @media (max-width: 760px) {
+        .topbar,
+        .grid-2 {
+          grid-template-columns: 1fr;
         }
 
-        .nav,
-        footer {
+        .topbar {
           align-items: flex-start;
           flex-direction: column;
         }
 
-        .hero-grid {
-          padding-top: 36px;
-        }
-
-        .metric-grid,
-        .feature-grid {
+        .metrics,
+        .form-grid,
+        .shock-grid {
           grid-template-columns: 1fr;
         }
 
-        .terminal-card {
-          padding: 14px;
-        }
-
-        .table {
-          overflow-x: auto;
-        }
-
-        .table-head,
-        .table-row {
-          grid-template-columns: 180px 64px 70px 110px 110px;
-          min-width: 560px;
-        }
-
-        .section {
-          padding: 54px 14px;
+        h1 {
+          font-size: 34px;
         }
       }
     </style>
   </head>
   <body>
-    <main>
-      <section class="hero">
-        <nav class="nav">
-          <div>
-            <span class="brand-kicker">YieldLens</span>
-            <p>A command desk for fixed-income clarity</p>
-          </div>
-          <a href="#case-study" class="nav-link">View case study</a>
-        </nav>
-
-        <div class="hero-grid">
-          <div class="hero-copy">
-            <span class="eyebrow">Resume-ready full-stack project</span>
-            <h1>See bonds like a desk would.</h1>
-            <p>
-              YieldLens is a fixed-income portfolio analytics workspace with a typed Python API,
-              normalized bond data, SQL-backed metrics, and a polished Next.js dashboard.
-            </p>
-            <div class="cta-row">
-              <a href="#demo" class="button primary">Explore live demo</a>
-              <a href="#architecture" class="button secondary">Read architecture</a>
-            </div>
-          </div>
-
-          <div class="terminal-card" id="demo" aria-label="YieldLens demo dashboard preview">
-            <div class="terminal-top">
-              <div>
-                <span class="mini-label">Portfolio tape</span>
-                <h2>Core Bond Workspace</h2>
-              </div>
-              <span class="pill">INR</span>
-            </div>
-            <div class="metric-grid">
-              <div class="metric"><span>Portfolio Value</span><strong>INR 6,048.75</strong><small>Across 2 sample positions</small></div>
-              <div class="metric"><span>Gain/Loss</span><strong>+INR 33.75</strong><small>Return on cost: 0.56%</small></div>
-              <div class="metric"><span>Weighted Yield</span><strong>8.16%</strong><small>100% data coverage</small></div>
-              <div class="metric"><span>Avg Duration</span><strong>3.85 yrs</strong><small>Duration-based risk view</small></div>
-            </div>
-            <div class="chart-row" aria-hidden="true">
-              <div class="chart-track"><span class="bar copper" style="height:34%"></span></div>
-              <div class="chart-track"><span class="bar teal" style="height:58%"></span></div>
-              <div class="chart-track"><span class="bar teal" style="height:47%"></span></div>
-              <div class="chart-track"><span class="bar brass" style="height:72%"></span></div>
-              <div class="chart-track"><span class="bar copper" style="height:42%"></span></div>
-              <div class="chart-track"><span class="bar teal" style="height:88%"></span></div>
-              <div class="chart-track"><span class="bar brass" style="height:63%"></span></div>
-              <div class="chart-track"><span class="bar teal" style="height:76%"></span></div>
-              <div class="chart-track"><span class="bar copper" style="height:51%"></span></div>
-              <div class="chart-track"><span class="bar brass" style="height:69%"></span></div>
-              <div class="chart-track"><span class="bar teal" style="height:45%"></span></div>
-              <div class="chart-track"><span class="bar teal" style="height:82%"></span></div>
-            </div>
-            <div class="table">
-              <div class="table-head"><span>Bond</span><span>Rating</span><span>Coupon</span><span>Value</span><span>Gain/Loss</span></div>
-              <div class="table-row"><span>Adani Ports 2030 NCD</span><span>AA</span><span>8.45%</span><span>INR 5,035.50</span><span class="gain">+INR 25.50</span></div>
-              <div class="table-row"><span>Tata Motors 2030 NCD</span><span>AA+</span><span>8.25%</span><span>INR 1,013.25</span><span class="gain">+INR 8.25</span></div>
-              <div class="table-row"><span>Axis Bank 2032 Bond</span><span>AAA</span><span>8.00%</span><span>INR 1,018.20</span><span class="gain">+INR 18.20</span></div>
-              <div class="table-row"><span>Muthoot Finance 2028</span><span>AA</span><span>8.90%</span><span>INR 998.40</span><span class="loss">-INR 6.60</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="case-study">
-        <div class="section-heading">
-          <span class="eyebrow">What it demonstrates</span>
-          <h2>Built as a production-style MVP, not a static mockup.</h2>
-          <p>
-            The source project includes a real FastAPI backend, migrations, CSV import, provider
-            abstraction, analytics services, tests, and a Next.js portfolio dashboard.
-          </p>
-        </div>
-        <div class="feature-grid">
-          <article><span>01</span><h3>Portfolio workflows</h3><p>Create, rename, inspect, import, and manage bond positions with validation on both sides.</p></article>
-          <article><span>02</span><h3>Analytics engine</h3><p>Market value, gain/loss, weighted yield, duration, DV01, maturity buckets, and exposure.</p></article>
-          <article><span>03</span><h3>Risk scenarios</h3><p>Duration-based interest-rate shock analysis for common basis-point moves.</p></article>
-        </div>
-      </section>
-
-      <section class="section split" id="architecture">
+    <div class="shell">
+      <header class="topbar">
         <div>
-          <span class="eyebrow">Architecture</span>
-          <h2>Clean boundaries from provider data to portfolio insight.</h2>
-          <p>
-            YieldLens separates data acquisition, normalization, persistence, analytics, API
-            contracts, and UI state. That makes the project easy to explain, test, and extend.
-          </p>
+          <span class="brand">YieldLens</span>
+          <p>Browser demo for fixed-income portfolio analytics</p>
         </div>
-        <div class="architecture-list">
-          <article><h3>Provider layer</h3><p>Demo, live, and hybrid bond-data adapters normalize securities into one schema.</p></article>
-          <article><h3>Portfolio engine</h3><p>Positions reference a normalized bond master and store user-specific quantity and prices.</p></article>
-          <article><h3>SQL analytics</h3><p>Exposure, duration, DV01, maturity buckets, and gain/loss are aggregated close to the data.</p></article>
-          <article><h3>Decision UI</h3><p>A compact dashboard turns backend analytics into charts, tables, and scenario controls.</p></article>
+        <div class="top-actions">
+          <button class="button secondary" id="resetPortfolio">Reset demo</button>
+          <button class="button primary" id="loadSample">Load sample portfolio</button>
         </div>
-      </section>
+      </header>
 
-      <section class="section">
-        <div class="section-heading">
-          <span class="eyebrow">Stack</span>
-          <h2>Modern full-stack tools, chosen for clarity.</h2>
-        </div>
-        <div class="stack">
-          <span>FastAPI</span><span>SQLAlchemy</span><span>PostgreSQL</span><span>Pydantic</span>
-          <span>Next.js</span><span>TypeScript</span><span>Tailwind CSS</span><span>TanStack Query</span><span>Recharts</span>
-        </div>
-      </section>
+      <div class="workspace">
+        <aside class="sidebar">
+          <section class="panel">
+            <span class="kicker">Add bond</span>
+            <h1>Build a portfolio and watch the analytics move.</h1>
+            <p class="muted">
+              This GitHub Pages version runs fully in your browser using demo reference prices. The
+              full repository also includes the FastAPI backend and database-backed implementation.
+            </p>
+          </section>
+
+          <section class="panel">
+            <h2>Search demo bond universe</h2>
+            <div class="field">
+              <span>Issuer, ISIN, or security name</span>
+              <input id="bondSearch" type="search" placeholder="Try HDFC, Adani, Axis, INE..." />
+            </div>
+            <p class="notice" id="selectionNotice">
+              Suggested demo bonds appear immediately because GitHub Pages cannot fetch paid/live
+              market APIs or run the Python backend.
+            </p>
+            <div class="search-results" id="bondResults" aria-label="Bond search results"></div>
+          </section>
+
+          <section class="panel">
+            <h2 id="selectedTitle">Selected bond</h2>
+            <p class="muted" id="selectedSummary">Pick a bond above to prefill this form.</p>
+            <div class="form-grid">
+              <label class="field">
+                <span>Units</span>
+                <input id="units" type="number" min="0.0001" step="0.0001" value="1" />
+              </label>
+              <label class="field">
+                <span>Purchase Price per Unit</span>
+                <input id="purchasePrice" type="number" min="0" step="0.01" />
+              </label>
+              <label class="field">
+                <span>Current Price per Unit</span>
+                <input id="currentPrice" type="number" min="0" step="0.01" />
+                <small>Prefilled from demo reference data. Edit it if your current price differs.</small>
+              </label>
+              <label class="field">
+                <span>Purchase Date</span>
+                <input id="purchaseDate" type="date" />
+              </label>
+            </div>
+            <button class="button dark" id="addBond" style="margin-top: 14px; width: 100%">Add to portfolio</button>
+          </section>
+        </aside>
+
+        <main class="main">
+          <section class="hero">
+            <span class="brand">Portfolio workspace</span>
+            <h1 id="portfolioName">Core Bond Workspace</h1>
+            <p>
+              Add bonds, change units and prices, inspect market value, unrealized gain/loss,
+              weighted yield, duration, DV01, exposure, maturity buckets, and rate shocks.
+            </p>
+          </section>
+
+          <section class="metrics">
+            <article class="card metric">
+              <span>Portfolio Value</span>
+              <strong id="portfolioValue">INR 0.00</strong>
+              <small>Market value = units x current price per unit</small>
+            </article>
+            <article class="card metric">
+              <span>Unrealized Gain/Loss</span>
+              <strong id="gainLoss">INR 0.00</strong>
+              <small id="gainLossDetail">Return on cost: 0.00%</small>
+            </article>
+            <article class="card metric">
+              <span>Weighted Yield</span>
+              <strong id="weightedYield">0.00%</strong>
+              <small>Market-value weighted latest yield</small>
+            </article>
+            <article class="card metric">
+              <span>Avg Duration</span>
+              <strong id="avgDuration">0.00 yrs</strong>
+              <small>Market-value weighted duration</small>
+            </article>
+            <article class="card metric">
+              <span>Portfolio DV01</span>
+              <strong id="dv01">INR 0.00</strong>
+              <small>Approximate value change for a 1 bp move</small>
+            </article>
+          </section>
+
+          <section class="grid-2">
+            <article class="card chart-card">
+              <h2>Credit Rating Exposure</h2>
+              <div class="bars" id="ratingExposure"></div>
+            </article>
+            <article class="card chart-card">
+              <h2>Sector Exposure</h2>
+              <div class="bars" id="sectorExposure"></div>
+            </article>
+          </section>
+
+          <section class="grid-2">
+            <article class="card chart-card">
+              <h2>Maturity Distribution</h2>
+              <div class="bars" id="maturityDistribution"></div>
+            </article>
+            <article class="card chart-card scenario">
+              <h2>Interest Rate Scenario</h2>
+              <p class="muted">
+                Simplified duration estimate: price impact is approximately
+                portfolio value x weighted duration x rate move.
+              </p>
+              <div class="shock-grid" id="scenarioGrid"></div>
+            </article>
+          </section>
+
+          <section class="card chart-card">
+            <h2>Gain/Loss Contributors</h2>
+            <div class="bars" id="gainLossContributors"></div>
+          </section>
+
+          <section class="card table-card">
+            <h2>Bond Positions</h2>
+            <div class="table-wrap" id="positionsWrap"></div>
+          </section>
+        </main>
+      </div>
 
       <footer>
-        <strong>YieldLens</strong>
-        <span>Educational fixed-income analytics project. Demo data is used in this public showcase.</span>
+        YieldLens is an educational fixed-income analytics project. This public GitHub Pages build
+        uses demo data and browser-local state because GitHub Pages is static hosting. It is not
+        investment advice, a live market-data feed, or a full bond-pricing model.
       </footer>
-    </main>
+    </div>
+
+    <script>
+      const bonds = [
+        ["INE001A08024", "HDFC Bank Limited", "HDFC Bank 7.95% 2031 Senior Bond", 7.95, "2031-08-15", 1000, "AAA", "Financial Services", 4.62, 1018.5, 7.58],
+        ["INE001A08032", "HDFC Bank Limited", "HDFC Bank 8.10% 2033 Infrastructure Bond", 8.1, "2033-03-20", 1000, "AAA", "Financial Services", 5.75, 1026.4, 7.62],
+        ["INE002A08018", "Reliance Industries Limited", "Reliance Industries 7.65% 2030 Bond", 7.65, "2030-11-10", 1000, "AAA", "Energy", 3.82, 1009.25, 7.39],
+        ["INE020B08815", "Rural Electrification Corporation Limited", "REC 8.05% 2032 Bond", 8.05, "2032-09-18", 1000, "AAA", "Infrastructure", 5.21, 1023.7, 7.55],
+        ["INE134E08KA2", "Power Finance Corporation Limited", "PFC 8.11% 2034 Bond", 8.11, "2034-01-25", 1000, "AAA", "Infrastructure", 6.37, 1028.9, 7.66],
+        ["INE261F08AA1", "National Bank for Agriculture and Rural Development", "NABARD 7.58% 2031 Bond", 7.58, "2031-05-28", 1000, "AAA", "Government", 4.48, 1007.4, 7.39],
+        ["INE053F07AB5", "Indian Railway Finance Corporation Limited", "IRFC 8.00% 2040 Bond", 8.0, "2040-07-30", 1000, "AAA", "Government", 10.42, 1029.75, 7.71],
+        ["INE121A08AA2", "Cholamandalam Investment and Finance Company", "Chola Finance 8.55% 2029 Secured NCD", 8.55, "2029-09-05", 1000, "AA+", "Financial Services", 2.81, 1014.1, 8.02],
+        ["INE414G07AA6", "Muthoot Finance Limited", "Muthoot Finance 8.90% 2028 Secured NCD", 8.9, "2028-12-18", 1000, "AA", "Financial Services", 2.14, 1011.3, 8.35],
+        ["INE155A08357", "Tata Motors Limited", "Tata Motors 8.25% 2030 NCD", 8.25, "2030-06-17", 1000, "AA+", "Industrial", 3.55, 1013.25, 7.89],
+        ["INE733E07AA8", "Adani Ports and Special Economic Zone Limited", "Adani Ports 8.45% 2030 NCD", 8.45, "2030-10-03", 1000, "AA", "Infrastructure", 3.91, 1007.1, 8.22],
+        ["INE148I07AA9", "Indiabulls Housing Finance Limited", "Indiabulls Housing 9.10% 2028 NCD", 9.1, "2028-06-29", 1000, "A", "Financial Services", 1.71, 988.75, 9.88],
+        ["INE031B07AA9", "Axis Bank Limited", "Axis Bank 8.00% 2032 Basel III Bond", 8.0, "2032-07-05", 1000, "AA+", "Financial Services", 5.34, 1008.95, 7.82],
+        ["INE028A07AA5", "Bank of Baroda", "Bank of Baroda 7.99% 2034 Basel III Bond", 7.99, "2034-02-28", 1000, "AA+", "Financial Services", 6.45, 1007.55, 7.86],
+        ["INE090A08AA8", "ICICI Bank Limited", "ICICI Bank 7.85% 2031 Senior Bond", 7.85, "2031-10-19", 1000, "AAA", "Financial Services", 4.86, 1012.45, 7.54]
+      ].map(([isin, issuer, securityName, coupon, maturity, faceValue, rating, sector, duration, price, latestYield]) => ({
+        isin,
+        issuer,
+        securityName,
+        coupon,
+        maturity,
+        faceValue,
+        rating,
+        sector,
+        duration,
+        price,
+        latestYield
+      }));
+
+      const samplePositions = [
+        ["INE001A08024", 1, 1002],
+        ["INE733E07AA8", 5, 992],
+        ["INE031B07AA9", 1, 999],
+        ["INE414G07AA6", 1, 995]
+      ];
+
+      const state = {
+        selected: bonds[0],
+        positions: readPositions()
+      };
+
+      const els = {
+        search: document.querySelector("#bondSearch"),
+        results: document.querySelector("#bondResults"),
+        selectedTitle: document.querySelector("#selectedTitle"),
+        selectedSummary: document.querySelector("#selectedSummary"),
+        units: document.querySelector("#units"),
+        purchasePrice: document.querySelector("#purchasePrice"),
+        currentPrice: document.querySelector("#currentPrice"),
+        purchaseDate: document.querySelector("#purchaseDate"),
+        addBond: document.querySelector("#addBond"),
+        loadSample: document.querySelector("#loadSample"),
+        resetPortfolio: document.querySelector("#resetPortfolio")
+      };
+
+      function formatInr(value) {
+        return `INR ${Number(value || 0).toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })}`;
+      }
+
+      function formatPct(value) {
+        return `${Number(value || 0).toFixed(2)}%`;
+      }
+
+      function yearsToMaturity(dateText) {
+        const today = new Date();
+        const maturity = new Date(`${dateText}T00:00:00`);
+        return Math.max(0, (maturity - today) / (365 * 24 * 60 * 60 * 1000));
+      }
+
+      function readPositions() {
+        try {
+          const saved = JSON.parse(localStorage.getItem("yieldlens-pages-positions") || "[]");
+          return Array.isArray(saved) ? saved : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function persist() {
+        localStorage.setItem("yieldlens-pages-positions", JSON.stringify(state.positions));
+      }
+
+      function setSelected(bond) {
+        state.selected = bond;
+        els.selectedTitle.textContent = bond.issuer;
+        els.selectedSummary.textContent = `${bond.securityName} • ${bond.coupon.toFixed(2)}% • ${bond.maturity} • ${bond.isin}`;
+        els.units.value = "1";
+        els.purchasePrice.value = bond.faceValue.toFixed(2);
+        els.currentPrice.value = bond.price.toFixed(2);
+        renderBondResults();
+      }
+
+      function filteredBonds() {
+        const query = els.search.value.trim().toLowerCase();
+        if (!query) return bonds;
+        return bonds.filter((bond) =>
+          [bond.isin, bond.issuer, bond.securityName, bond.rating, bond.sector].some((value) =>
+            String(value).toLowerCase().includes(query)
+          )
+        );
+      }
+
+      function renderBondResults() {
+        const rows = filteredBonds();
+        els.results.innerHTML = rows
+          .map(
+            (bond) => `
+              <button class="bond-option ${bond.isin === state.selected.isin ? "selected" : ""}" data-isin="${bond.isin}">
+                <strong>${bond.issuer}</strong>
+                <small>${bond.coupon.toFixed(2)}% • ${bond.maturity} • ${bond.isin} • ${bond.rating} • Demo</small>
+              </button>
+            `
+          )
+          .join("");
+
+        els.results.querySelectorAll("button").forEach((button) => {
+          button.addEventListener("click", () => {
+            const bond = bonds.find((item) => item.isin === button.dataset.isin);
+            if (bond) setSelected(bond);
+          });
+        });
+      }
+
+      function addPosition() {
+        if (!state.selected) return;
+        const units = Number(els.units.value);
+        const purchasePrice = Number(els.purchasePrice.value);
+        const currentPrice = Number(els.currentPrice.value);
+        if (!Number.isFinite(units) || units <= 0 || !Number.isFinite(currentPrice) || currentPrice <= 0) {
+          alert("Enter valid units and current price per unit.");
+          return;
+        }
+        state.positions.push({
+          id: `${Date.now()}-${state.selected.isin}`,
+          isin: state.selected.isin,
+          units,
+          purchasePrice: Number.isFinite(purchasePrice) && purchasePrice > 0 ? purchasePrice : state.selected.faceValue,
+          currentPrice,
+          purchaseDate: els.purchaseDate.value
+        });
+        persist();
+        renderDashboard();
+      }
+
+      function positionRows() {
+        return state.positions
+          .map((position) => {
+            const bond = bonds.find((item) => item.isin === position.isin);
+            if (!bond) return null;
+            const marketValue = position.units * position.currentPrice;
+            const costBasis = position.units * position.purchasePrice;
+            const gainLoss = marketValue - costBasis;
+            const gainLossPercent = costBasis > 0 ? (gainLoss / costBasis) * 100 : 0;
+            return { ...position, bond, marketValue, costBasis, gainLoss, gainLossPercent };
+          })
+          .filter(Boolean);
+      }
+
+      function analytics() {
+        const rows = positionRows();
+        const totalValue = rows.reduce((sum, row) => sum + row.marketValue, 0);
+        const totalCost = rows.reduce((sum, row) => sum + row.costBasis, 0);
+        const gainLoss = rows.reduce((sum, row) => sum + row.gainLoss, 0);
+        const weightedYield = totalValue ? rows.reduce((sum, row) => sum + row.marketValue * row.bond.latestYield, 0) / totalValue : 0;
+        const avgDuration = totalValue ? rows.reduce((sum, row) => sum + row.marketValue * row.bond.duration, 0) / totalValue : 0;
+        const dv01 = rows.reduce((sum, row) => sum + row.marketValue * row.bond.duration * 0.0001, 0);
+        return {
+          rows,
+          totalValue,
+          totalCost,
+          gainLoss,
+          gainLossPercent: totalCost ? (gainLoss / totalCost) * 100 : 0,
+          weightedYield,
+          avgDuration,
+          dv01
+        };
+      }
+
+      function groupBy(rows, getLabel) {
+        const total = rows.reduce((sum, row) => sum + row.marketValue, 0);
+        const groups = new Map();
+        rows.forEach((row) => {
+          const label = getLabel(row);
+          groups.set(label, (groups.get(label) || 0) + row.marketValue);
+        });
+        return [...groups.entries()]
+          .map(([label, value]) => ({ label, value, percent: total ? (value / total) * 100 : 0 }))
+          .sort((a, b) => b.value - a.value);
+      }
+
+      function maturityBucket(row) {
+        const years = yearsToMaturity(row.bond.maturity);
+        if (years < 1) return "< 1 year";
+        if (years < 3) return "1-3 years";
+        if (years < 5) return "3-5 years";
+        if (years < 10) return "5-10 years";
+        return "10+ years";
+      }
+
+      function renderBars(target, rows, tone = "teal") {
+        const el = document.querySelector(target);
+        if (!rows.length) {
+          el.innerHTML = '<div class="empty">Add bonds to populate this chart.</div>';
+          return;
+        }
+        el.innerHTML = rows
+          .map(
+            (row) => `
+              <div class="bar-row">
+                <span>${row.label}</span>
+                <span class="track"><span class="fill ${tone}" style="width: ${Math.min(100, row.percent)}%"></span></span>
+                <strong>${formatPct(row.percent)}</strong>
+              </div>
+            `
+          )
+          .join("");
+      }
+
+      function renderDashboard() {
+        const data = analytics();
+        document.querySelector("#portfolioValue").textContent = formatInr(data.totalValue);
+        document.querySelector("#gainLoss").textContent = formatInr(data.gainLoss);
+        document.querySelector("#gainLoss").className = data.gainLoss >= 0 ? "gain" : "loss";
+        document.querySelector("#gainLossDetail").textContent = `Return on cost: ${formatPct(data.gainLossPercent)}`;
+        document.querySelector("#weightedYield").textContent = formatPct(data.weightedYield);
+        document.querySelector("#avgDuration").textContent = `${data.avgDuration.toFixed(2)} yrs`;
+        document.querySelector("#dv01").textContent = formatInr(data.dv01);
+
+        renderBars("#ratingExposure", groupBy(data.rows, (row) => row.bond.rating), "teal");
+        renderBars("#sectorExposure", groupBy(data.rows, (row) => row.bond.sector), "brass");
+        const maturityOrder = ["< 1 year", "1-3 years", "3-5 years", "5-10 years", "10+ years"];
+        const maturity = groupBy(data.rows, maturityBucket).sort((a, b) => maturityOrder.indexOf(a.label) - maturityOrder.indexOf(b.label));
+        renderBars("#maturityDistribution", maturity, "copper");
+        const contributors = data.rows
+          .slice()
+          .sort((a, b) => Math.abs(b.gainLoss) - Math.abs(a.gainLoss))
+          .slice(0, 6)
+          .map((row) => ({ label: row.bond.issuer, value: row.gainLoss, percent: data.totalValue ? Math.min(100, Math.abs(row.gainLoss) / data.totalValue * 100) : 0 }));
+        renderBars("#gainLossContributors", contributors, "teal");
+
+        document.querySelector("#scenarioGrid").innerHTML = [-100, -50, 50, 100]
+          .map((bps) => {
+            const change = -(data.totalValue * data.avgDuration * (bps / 10000));
+            const estimated = data.totalValue + change;
+            return `
+              <div class="shock">
+                <span>${bps > 0 ? "+" : ""}${bps} bps</span>
+                <strong class="${change >= 0 ? "gain" : "loss"}">${formatInr(change)}</strong>
+                <small>${formatInr(estimated)} estimated value</small>
+              </div>
+            `;
+          })
+          .join("");
+
+        renderPositions(data.rows);
+      }
+
+      function renderPositions(rows) {
+        const wrap = document.querySelector("#positionsWrap");
+        if (!rows.length) {
+          wrap.innerHTML = '<div class="empty">No positions yet. Select a suggested bond and add it to start testing analytics.</div>';
+          return;
+        }
+        const total = rows.reduce((sum, row) => sum + row.marketValue, 0);
+        wrap.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Bond</th>
+                <th>Units</th>
+                <th>Current Price</th>
+                <th>Market Value</th>
+                <th>Gain/Loss</th>
+                <th>Weight</th>
+                <th>Duration</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows
+                .map(
+                  (row) => `
+                    <tr>
+                      <td><strong>${row.bond.securityName}</strong><small>${row.bond.issuer} • ${row.bond.isin}</small></td>
+                      <td>${row.units}</td>
+                      <td>${formatInr(row.currentPrice)}</td>
+                      <td><strong>${formatInr(row.marketValue)}</strong></td>
+                      <td class="${row.gainLoss >= 0 ? "gain" : "loss"}">${formatInr(row.gainLoss)}<small>${formatPct(row.gainLossPercent)}</small></td>
+                      <td>${formatPct(total ? (row.marketValue / total) * 100 : 0)}</td>
+                      <td>${row.bond.duration.toFixed(2)} yrs</td>
+                      <td><button class="remove" data-remove="${row.id}">Remove</button></td>
+                    </tr>
+                  `
+                )
+                .join("")}
+            </tbody>
+          </table>
+        `;
+        wrap.querySelectorAll("[data-remove]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.positions = state.positions.filter((position) => position.id !== button.dataset.remove);
+            persist();
+            renderDashboard();
+          });
+        });
+      }
+
+      els.search.addEventListener("input", renderBondResults);
+      els.addBond.addEventListener("click", addPosition);
+      els.loadSample.addEventListener("click", () => {
+        state.positions = samplePositions.map(([isin, units, purchasePrice], index) => {
+          const bond = bonds.find((item) => item.isin === isin);
+          return {
+            id: `sample-${Date.now()}-${index}`,
+            isin,
+            units,
+            purchasePrice,
+            currentPrice: bond.price,
+            purchaseDate: ""
+          };
+        });
+        persist();
+        renderDashboard();
+      });
+      els.resetPortfolio.addEventListener("click", () => {
+        state.positions = [];
+        persist();
+        renderDashboard();
+      });
+
+      setSelected(bonds[0]);
+      renderBondResults();
+      renderDashboard();
+    </script>
   </body>
 </html>

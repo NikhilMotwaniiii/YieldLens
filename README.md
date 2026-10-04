@@ -7,9 +7,8 @@ The project is intentionally built like a production MVP: a typed FastAPI backen
 Live deployments:
 
 - GitHub Pages: https://nikhilmotwaniiii.github.io/YieldLens/
-- Render backend API: https://yieldlens-nikhilmotwaniiii-api.onrender.com
 
-The public GitHub Pages frontend calls the Render-hosted FastAPI backend by default. If you need to test another backend, set `yieldlens-api-base` in browser local storage to that backend origin. If the value is intentionally blanked in code, the static frontend can also fall back to browser-local storage.
+The public GitHub Pages frontend uses browser-local portfolio storage by default until a backend API URL is configured. After deploying the FastAPI backend on Northflank, set `yieldlens-api-base` in browser local storage to the Northflank service origin, then update `docs/index.html` with that URL for everyone.
 
 ## Quick Mental Model
 
@@ -779,32 +778,44 @@ High-impact next steps:
 Current deployment shape:
 
 - Frontend: GitHub Pages from `docs/index.html`.
-- Backend: FastAPI container deployable through `render.yaml`.
-- Database: PostgreSQL created by the Render blueprint.
+- Backend: FastAPI container deployable on Northflank from `backend/Dockerfile`.
+- Database: Northflank PostgreSQL addon.
 
-Render deployment:
+Northflank deployment:
 
 1. Push this repository to GitHub.
-2. In Render, choose **New > Blueprint**.
-3. Select this repository.
-4. Render reads `render.yaml` and creates:
-   - `yieldlens-nikhilmotwaniiii-api`, a free Docker web service.
-   - `yieldlens-db`, a free PostgreSQL database.
-5. Wait for the first deploy to finish.
-6. Open `/health` on the Render service URL and confirm it returns `{"status":"ok"}`.
-7. The GitHub Pages frontend is already configured to call:
+2. In Northflank, create a project for YieldLens.
+3. Create a PostgreSQL addon, for example `yieldlens-db`.
+4. Create a service from the GitHub repo:
+   - Build type: Dockerfile
+   - Dockerfile path: `/backend/Dockerfile`
+   - Build context: `/backend`
+   - Public HTTP port: `8000`
+   - Health check path: `/health`
+5. Link the PostgreSQL addon secrets to the service. The backend accepts either `DATABASE_URL` or Northflank's `POSTGRES_URI`.
+6. Add runtime environment variables:
 
 ```text
-https://yieldlens-nikhilmotwaniiii-api.onrender.com
+BACKEND_CORS_ORIGINS=https://nikhilmotwaniiii.github.io,http://localhost:3000,http://127.0.0.1:3000
+BOND_PROVIDER=demo
+ENVIRONMENT=production
 ```
 
-If Render assigns a different URL, update `API_BASE` in `docs/index.html` or set `yieldlens-api-base` in browser local storage to the actual Render origin.
+7. Deploy the service and open `/health` on the Northflank public service URL.
+8. Temporarily connect the GitHub Pages frontend from the browser console:
 
-Free-tier limitations:
+```js
+localStorage.setItem("yieldlens-api-base", "https://YOUR-NORTHFLANK-SERVICE_URL");
+location.reload();
+```
 
-- Render free web services sleep after inactivity and may take about a minute to wake up.
-- Render free PostgreSQL is suitable for demos, but currently expires after its free period unless upgraded.
-- For a long-lived resume project, use a durable managed PostgreSQL database or upgrade the Render database.
+9. After testing portfolio creation and persistence, update `API_BASE` in `docs/index.html` to the final Northflank service origin, commit, and push.
+
+Free-tier notes:
+
+- Northflank Sandbox is a good fit for this demo because it keeps the low-traffic backend and database available without a short fixed database expiry window.
+- Keep usage modest for recruiter demos and monitor Northflank's current free-tier limits.
+- If Northflank assigns a different public URL later, update `docs/index.html` and the README together.
 
 Production checklist:
 
